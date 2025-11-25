@@ -1,0 +1,43 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "comment": "File system access - useful for working with files outside project",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/directory"],
+      "disabled": true
+    },
+    "github": {
+      "comment": "GitHub integration - alternative to gh CLI",
+      "command": "npx", 
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "disabled": true
+    },
+    "postgres": {
+      "comment": "PostgreSQL database access",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${DATABASE_URL}"],
+      "disabled": true
+    },
+    "puppeteer": {
+      "comment": "Browser automation for visual testing",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "disabled": true
+    },
+    "memory": {
+      "comment": "Persistent memory across sessions",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "disabled": true
+    },
+    "sequential-thinking": {
+      "comment": "Enhanced reasoning for complex problems",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "disabled": true
+    }
+  }
+}

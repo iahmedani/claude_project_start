@@ -1,0 +1,157 @@
+# Project Configuration for Claude Code Orchestrator
+# Copy this file to your project root and customize
+
+# ==============================================================================
+# PROJECT IDENTITY
+# ==============================================================================
+project:
+  name: "Your Project Name"
+  description: "Brief description of your project"
+  version: "0.1.0"
+  repository: ""  # GitHub repository URL
+  
+# ==============================================================================
+# TECHNOLOGY STACK
+# ==============================================================================
+language: "python"  # python, typescript, javascript, go, rust, java
+python_version: "3.11"  # Specify your Python version
+
+framework:
+  primary: ""  # django, fastapi, flask, express, nextjs, etc.
+  additional: []  # List of additional frameworks/libraries
+
+# ==============================================================================
+# CODE QUALITY TOOLS
+# ==============================================================================
+style:
+  linter: "ruff"          # ruff, flake8, pylint, eslint
+  formatter: "ruff"       # ruff, black, prettier
+  type_checker: "pyright" # pyright, mypy, tsc
+  
+  # Custom rules
+  line_length: 100
+  quote_style: "double"   # single, double
+
+# ==============================================================================
+# TESTING CONFIGURATION
+# ==============================================================================
+testing:
+  framework: "pytest"     # pytest, unittest, jest, mocha
+  coverage_threshold: 80  # Minimum coverage percentage
+  test_directory: "tests" # Where tests live
+  
+  # Test categories
+  categories:
+    - unit
+    - integration
+    - e2e
+
+# ==============================================================================
+# DEVELOPMENT WORKFLOW
+# ==============================================================================
+workflow:
+  # Git workflow
+  git:
+    default_branch: "main"
+    branch_prefix: "feature/"  # feature/, bugfix/, hotfix/
+    commit_style: "conventional"  # conventional, semantic, freeform
+  
+  # Required checks before commit
+  pre_commit:
+    - lint
+    - type_check
+    - test_unit
+  
+  # Required checks before merge
+  pre_merge:
+    - test_all
+    - coverage_check
+    - security_scan
+
+# ==============================================================================
+# DOCUMENTATION
+# ==============================================================================
+documentation:
+  style: "google"  # google, numpy, sphinx, jsdoc
+  readme_sections:
+    - overview
+    - installation
+    - usage
+    - api
+    - contributing
+  
+  # Auto-generate these docs
+  auto_generate:
+    - api_reference
+    - changelog
+
+# ==============================================================================
+# PROJECT STRUCTURE
+# ==============================================================================
+structure:
+  source_directory: "src"
+  test_directory: "tests"
+  docs_directory: "docs"
+  
+  # Important paths for Claude to know
+  key_files:
+    - "src/main.py"
+    - "src/config.py"
+  
+  # Patterns to follow
+  example_patterns:
+    service: "src/services/example_service.py"
+    model: "src/models/example_model.py"
+    test: "tests/test_example.py"
+
+# ==============================================================================
+# QUALITY GATES
+# ==============================================================================
+quality_gates:
+  # All gates that must pass
+  required:
+    - lint_clean
+    - type_check_pass
+    - tests_pass
+    - coverage_met
+    - no_security_issues
+    - docs_updated
+  
+  # Optional but recommended
+  recommended:
+    - performance_check
+    - accessibility_check
+    - backwards_compatible
+
+# ==============================================================================
+# PHASE TRACKING
+# ==============================================================================
+phases:
+  current: "development"  # planning, development, testing, review, deployment
+  
+  definitions:
+    planning:
+      description: "Requirements and design phase"
+      artifacts:
+        - "PRP document"
+        - "Architecture decision records"
+    development:
+      description: "Implementation phase"
+      artifacts:
+        - "Source code"
+        - "Unit tests"
+    testing:
+      description: "QA and validation phase"
+      artifacts:
+        - "Integration tests"
+        - "Test reports"
+    review:
+      description: "Code review and approval"
+      artifacts:
+        - "PR reviews"
+        - "Security audit"
+    deployment:
+      description: "Release preparation"
+      artifacts:
+        - "Release notes"
+        - "Deployment checklist"
