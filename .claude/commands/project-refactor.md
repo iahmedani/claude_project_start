@@ -19,7 +19,7 @@ Refactor code safely using tests as a safety net.
 If tests don't exist:
 ```
 ⚠️ No tests found for this area.
-Recommendation: Run /project:tdd $ARGUMENTS first to create tests.
+Recommendation: Run /project-tdd $ARGUMENTS first to create tests.
 ```
 
 ## Refactoring Process
@@ -108,7 +108,7 @@ No functional changes."
 ╠══════════════════════════════════════════════════════════════╣
 ║  STEP COMPLETED: Refactoring                                  ║
 ║  ───────────────────────────────────────────────────────────  ║
-║  ➡️  NEXT STEP: Run /project:review to verify quality         ║
+║  ➡️  NEXT STEP: Run /project-review to verify quality         ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 

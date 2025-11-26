@@ -1,4 +1,4 @@
-# Project Configuration for Claude Code Orchestrator
+# Project Configuration for Claude Code Full-Stack Orchestrator
 # Copy this file to your project root and customize
 
 # ==============================================================================
@@ -9,42 +9,119 @@ project:
   description: "Brief description of your project"
   version: "0.1.0"
   repository: ""  # GitHub repository URL
-  
+
 # ==============================================================================
 # TECHNOLOGY STACK
 # ==============================================================================
-language: "python"  # python, typescript, javascript, go, rust, java
-python_version: "3.11"  # Specify your Python version
+stack:
+  type: "fullstack"  # fullstack, backend, frontend, api, library
 
-framework:
-  primary: ""  # django, fastapi, flask, express, nextjs, etc.
-  additional: []  # List of additional frameworks/libraries
+  # Backend configuration
+  backend:
+    language: "typescript"  # python, typescript, javascript, go, rust, java
+    runtime: "node"         # node, deno, bun, python
+    framework: "express"    # express, fastapi, django, nestjs, hono, flask
+
+  # Frontend configuration
+  frontend:
+    framework: "react"      # react, vue, svelte, solid, angular, none
+    meta_framework: "nextjs" # nextjs, nuxt, sveltekit, remix, astro, none
+    styling: "tailwind"     # tailwind, css-modules, styled-components, emotion
+    state_management: "zustand"  # zustand, redux, pinia, jotai, none
+
+  # Database configuration
+  database:
+    primary: "postgresql"   # postgresql, mysql, mongodb, sqlite
+    orm: "prisma"           # prisma, drizzle, typeorm, sqlalchemy, mongoose
+    cache: "redis"          # redis, memcached, none
+
+  # API configuration
+  api:
+    style: "rest"           # rest, graphql, trpc, grpc
+    documentation: "openapi" # openapi, graphql-schema, none
+
+# ==============================================================================
+# LANGUAGE VERSIONS
+# ==============================================================================
+versions:
+  node: "20"
+  python: "3.11"
+  typescript: "5.3"
+
+# ==============================================================================
+# PACKAGE MANAGERS
+# ==============================================================================
+package_managers:
+  node: "npm"     # npm, yarn, pnpm, bun
+  python: "pip"   # pip, uv, poetry, pipenv
 
 # ==============================================================================
 # CODE QUALITY TOOLS
 # ==============================================================================
 style:
-  linter: "ruff"          # ruff, flake8, pylint, eslint
-  formatter: "ruff"       # ruff, black, prettier
-  type_checker: "pyright" # pyright, mypy, tsc
-  
-  # Custom rules
+  # Backend/Node.js
+  node:
+    linter: "eslint"
+    formatter: "prettier"
+    type_checker: "tsc"
+
+  # Python
+  python:
+    linter: "ruff"
+    formatter: "ruff"
+    type_checker: "pyright"
+
+  # General
   line_length: 100
-  quote_style: "double"   # single, double
+  quote_style: "single"  # single, double
+  semicolons: false      # true, false (JS/TS)
+  trailing_commas: "es5" # all, es5, none
 
 # ==============================================================================
 # TESTING CONFIGURATION
 # ==============================================================================
 testing:
-  framework: "pytest"     # pytest, unittest, jest, mocha
-  coverage_threshold: 80  # Minimum coverage percentage
-  test_directory: "tests" # Where tests live
-  
+  # Backend tests
+  backend:
+    framework: "vitest"     # vitest, jest, pytest, go-test
+    coverage_threshold: 80
+    test_directory: "tests"
+
+  # Frontend tests
+  frontend:
+    unit: "vitest"          # vitest, jest
+    component: "testing-library"  # testing-library, enzyme
+    e2e: "playwright"       # playwright, cypress, none
+
   # Test categories
   categories:
     - unit
     - integration
     - e2e
+    - api
+
+# ==============================================================================
+# INFRASTRUCTURE
+# ==============================================================================
+infrastructure:
+  # Containerization
+  docker:
+    enabled: true
+    compose: true
+    registry: "ghcr.io"
+
+  # Orchestration
+  kubernetes:
+    enabled: false
+    helm: false
+
+  # CI/CD
+  ci:
+    provider: "github-actions"  # github-actions, gitlab-ci, circleci
+    environments:
+      - development
+      - staging
+      - production
 
 # ==============================================================================
 # DEVELOPMENT WORKFLOW
@@ -53,105 +130,143 @@ workflow:
   # Git workflow
   git:
     default_branch: "main"
-    branch_prefix: "feature/"  # feature/, bugfix/, hotfix/
-    commit_style: "conventional"  # conventional, semantic, freeform
-  
+    branch_prefix: "feature/"
+    commit_style: "conventional"
+
   # Required checks before commit
   pre_commit:
     - lint
     - type_check
     - test_unit
-  
+    - format_check
+
   # Required checks before merge
   pre_merge:
     - test_all
     - coverage_check
     - security_scan
+    - build_check
 
 # ==============================================================================
 # DOCUMENTATION
 # ==============================================================================
 documentation:
-  style: "google"  # google, numpy, sphinx, jsdoc
+  style: "tsdoc"  # tsdoc, jsdoc, google, numpy
+  api_docs: "typedoc"  # typedoc, swagger-ui, redoc, sphinx
+
   readme_sections:
     - overview
+    - features
     - installation
     - usage
     - api
     - contributing
-  
-  # Auto-generate these docs
+
   auto_generate:
     - api_reference
     - changelog
+    - storybook
 
 # ==============================================================================
 # PROJECT STRUCTURE
 # ==============================================================================
 structure:
-  source_directory: "src"
-  test_directory: "tests"
-  docs_directory: "docs"
-  
-  # Important paths for Claude to know
+  # Monorepo support
+  monorepo: false
+  workspace_manager: "turborepo"  # turborepo, nx, lerna, none
+
+  # Directory structure
+  directories:
+    source: "src"
+    tests: "tests"
+    docs: "docs"
+    scripts: "scripts"
+    config: "config"
+
+  # Key files
   key_files:
-    - "src/main.py"
-    - "src/config.py"
-  
-  # Patterns to follow
-  example_patterns:
-    service: "src/services/example_service.py"
-    model: "src/models/example_model.py"
-    test: "tests/test_example.py"
+    - "src/index.ts"
+    - "src/app.ts"
+    - "src/config/index.ts"
+
+  # Example patterns
+  patterns:
+    component: "src/components/Example/Example.tsx"
+    hook: "src/hooks/useExample.ts"
+    service: "src/services/example.service.ts"
+    repository: "src/repositories/example.repository.ts"
+    route: "src/routes/example.route.ts"
+    test: "tests/example.test.ts"
 
 # ==============================================================================
 # QUALITY GATES
 # ==============================================================================
 quality_gates:
-  # All gates that must pass
   required:
     - lint_clean
     - type_check_pass
     - tests_pass
     - coverage_met
     - no_security_issues
-    - docs_updated
-  
-  # Optional but recommended
+    - build_successful
+
   recommended:
     - performance_check
     - accessibility_check
-    - backwards_compatible
+    - bundle_size_check
+    - lighthouse_score
+
+# ==============================================================================
+# SECURITY
+# ==============================================================================
+security:
+  # Scanning
+  dependency_scanning: true
+  code_scanning: true
+  secret_scanning: true
+
+  # Tools
+  tools:
+    - "npm audit"
+    - "snyk"
+
+  # Ignored vulnerabilities (with justification)
+  ignored_vulnerabilities: []
 
 # ==============================================================================
 # PHASE TRACKING
 # ==============================================================================
 phases:
-  current: "development"  # planning, development, testing, review, deployment
-  
+  current: "development"
+
   definitions:
     planning:
       description: "Requirements and design phase"
       artifacts:
         - "PRP document"
         - "Architecture decision records"
+        - "API specifications"
     development:
       description: "Implementation phase"
       artifacts:
         - "Source code"
         - "Unit tests"
+        - "Component tests"
     testing:
       description: "QA and validation phase"
       artifacts:
         - "Integration tests"
+        - "E2E tests"
         - "Test reports"
     review:
       description: "Code review and approval"
       artifacts:
         - "PR reviews"
         - "Security audit"
+        - "Performance report"
     deployment:
       description: "Release preparation"
       artifacts:
         - "Release notes"
         - "Deployment checklist"
+        - "Rollback plan"

@@ -153,10 +153,10 @@ After review completion:
 ║  STEP COMPLETED: Code Review                                  ║
 ║  ───────────────────────────────────────────────────────────  ║
 ║  [If APPROVED]                                                ║
-║  ➡️  NEXT STEP: Run /project:validate for final gates         ║
+║  ➡️  NEXT STEP: Run /project-validate for final gates         ║
 ║                                                               ║
 ║  [If NEEDS WORK]                                              ║
-║  ➡️  NEXT STEP: Fix issues, then /project:review again        ║
+║  ➡️  NEXT STEP: Fix issues, then /project-review again        ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 

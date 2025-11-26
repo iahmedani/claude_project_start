@@ -172,11 +172,11 @@ After TDD cycle completion:
 ╠══════════════════════════════════════════════════════════════╣
 ║  STEP COMPLETED: TDD Implementation                           ║
 ║  ───────────────────────────────────────────────────────────  ║
-║  ➡️  NEXT STEP: Run /project:review for code review           ║
+║  ➡️  NEXT STEP: Run /project-review for code review           ║
 ║                                                               ║
 ║  Alternatives:                                                ║
-║  • /project:validate - Run all quality gates                 ║
-║  • /project:tdd [another-feature] - Continue TDD             ║
+║  • /project-validate - Run all quality gates                 ║
+║  • /project-tdd [another-feature] - Continue TDD             ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 

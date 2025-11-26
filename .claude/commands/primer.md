@@ -214,10 +214,10 @@ After analysis:
 ╠══════════════════════════════════════════════════════════════╣
 ║  STEP COMPLETED: Codebase Discovery                           ║
 ║  ───────────────────────────────────────────────────────────  ║
-║  ➡️  NEXT STEP: Run /project:plan to plan your feature         ║
+║  ➡️  NEXT STEP: Run /project-plan to plan your feature         ║
 ║                                                               ║
 ║  Alternatives:                                                ║
-║  • /project:explore [area] - Deep dive into specific area    ║
-║  • /project:fix-issue [#] - Fix a GitHub issue               ║
+║  • /project-explore [area] - Deep dive into specific area    ║
+║  • /project-fix-issue [#] - Fix a GitHub issue               ║
 ╚══════════════════════════════════════════════════════════════╝
 ```

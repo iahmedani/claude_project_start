@@ -1,5 +1,7 @@
 # Database & Data Layer Skill
 
+> **Related**: `api-design` (REST endpoints), `graphql-api` (GraphQL resolvers), `python-development` (SQLAlchemy)
+
 ## ORM Patterns (SQLAlchemy 2.0)
 
 ### Model Definition
@@ -16,15 +18,15 @@ class Base(DeclarativeBase):
 
 class User(Base):
     __tablename__ = "users"
-    
+
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     name: Mapped[str] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    
+
     # Relationships
     posts: Mapped[list["Post"]] = relationship(back_populates="author")
-    
+
     def __repr__(self) -> str:
         return f"User(id={self.id}, email={self.email!r})"
 ```
@@ -40,7 +42,7 @@ T = TypeVar("T")
 
 class Repository(Protocol[T]):
     """Generic repository interface."""
-    
+
     def get(self, id: int) -> T | None: ...
     def get_all(self) -> list[T]: ...
     def create(self, entity: T) -> T: ...
@@ -50,16 +52,16 @@ class Repository(Protocol[T]):
 
 class UserRepository:
     """User repository implementation."""
-    
+
     def __init__(self, session: Session):
         self.session = session
-    
+
     def get(self, user_id: int) -> User | None:
         return self.session.get(User, user_id)
-    
+
     def get_by_email(self, email: str) -> User | None:
         return self.session.query(User).filter(User.email == email).first()
-    
+
     def create(self, user: User) -> User:
         self.session.add(user)
         self.session.commit()
@@ -136,9 +138,9 @@ def db_session():
     """Create test database session."""
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
-    
+
     with Session(engine) as session:
         yield session
-    
+
     Base.metadata.drop_all(engine)
 ```

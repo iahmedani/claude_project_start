@@ -11,8 +11,8 @@ Run all quality gates to ensure code is ready for merge/deployment.
 ## Prerequisites
 
 This is typically run after:
-1. Implementation complete (`/project:implement`)
-2. Code review passed (`/project:review`)
+1. Implementation complete (`/project-implement`)
+2. Code review passed (`/project-review`)
 
 ## Validation Gates
 
@@ -161,7 +161,7 @@ After validation:
 ╠══════════════════════════════════════════════════════════════╣
 ║  STEP COMPLETED: Validation                                   ║
 ║  ───────────────────────────────────────────────────────────  ║
-║  ➡️  NEXT STEP: Run /project:deploy for deployment prep       ║
+║  ➡️  NEXT STEP: Run /project-deploy for deployment prep       ║
 ║                                                               ║
 ║  Alternatives:                                                ║
 ║  • Create PR: gh pr create                                   ║

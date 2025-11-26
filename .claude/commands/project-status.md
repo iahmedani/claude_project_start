@@ -123,13 +123,13 @@ Based on workflow state, recommend:
 
 | Current State | Recommendation |
 |---------------|----------------|
-| Not initialized | `/project:init` |
+| Not initialized | `/project-init` |
 | Initialized, no analysis | `/primer` |
-| No active PRP | `/project:plan [feature]` |
-| PRP exists, not started | `/project:implement [PRP]` |
-| Implementation done | `/project:review` |
-| Review passed | `/project:validate` |
-| Validation passed | `/project:deploy` |
+| No active PRP | `/project-plan [feature]` |
+| PRP exists, not started | `/project-implement [PRP]` |
+| Implementation done | `/project-review` |
+| Review passed | `/project-validate` |
+| Validation passed | `/project-deploy` |
 | Uncommitted changes | `git commit -m "..."` |
 
 ## Workflow Progress Visualization

@@ -14,7 +14,7 @@ Generate a comprehensive Product Requirements Prompt (PRP) for a feature.
 
 Before starting:
 1. Check if project is initialized (`.claude/workflow/STATE.md` exists)
-2. If not initialized, suggest running `/project:init` first
+2. If not initialized, suggest running `/project-init` first
 3. Check if `/primer` was run (recommended for context)
 
 ## Process
@@ -144,11 +144,11 @@ After completion:
 ╠══════════════════════════════════════════════════════════════╣
 ║  STEP COMPLETED: Planning                                     ║
 ║  ───────────────────────────────────────────────────────────  ║
-║  ➡️  NEXT STEP: Run /project:implement PRP-[slug]             ║
+║  ➡️  NEXT STEP: Run /project-implement PRP-[slug]             ║
 ║                                                               ║
 ║  Alternatives:                                                ║
-║  • /project:tdd PRP-[slug] - Start with tests (recommended)  ║
-║  • /project:review PRP-[slug] - Get PRP reviewed first       ║
+║  • /project-tdd PRP-[slug] - Start with tests (recommended)  ║
+║  • /project-review PRP-[slug] - Get PRP reviewed first       ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 

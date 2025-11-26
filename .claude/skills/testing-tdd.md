@@ -1,8 +1,11 @@
 # Testing & TDD Skill
 
+> **Related**: `python-development` (pytest), `react-development` (React Testing Library), `ci-cd` (test pipelines)
+
 ## Philosophy
 
 Test-Driven Development (TDD) is the preferred approach:
+
 1. **Red**: Write a failing test first
 2. **Green**: Write minimal code to pass
 3. **Refactor**: Improve while keeping tests green
@@ -18,17 +21,17 @@ from src.module import function_under_test
 
 class TestFunctionUnderTest:
     """Tests for function_under_test."""
-    
+
     def test_basic_functionality(self):
         """Test the happy path."""
         result = function_under_test(valid_input)
         assert result == expected_output
-    
+
     def test_edge_case_empty_input(self):
         """Test behavior with empty input."""
         result = function_under_test("")
         assert result is None
-    
+
     def test_raises_on_invalid_input(self):
         """Test that invalid input raises ValueError."""
         with pytest.raises(ValueError, match="Invalid input"):
@@ -70,16 +73,19 @@ def test_number_to_word(input_val, expected):
 ## Test Categories
 
 ### Unit Tests
+
 - Test individual functions/methods
 - Mock external dependencies
 - Fast execution (<100ms each)
 
 ### Integration Tests
+
 - Test component interactions
 - Use real dependencies where practical
 - Mark with `@pytest.mark.integration`
 
 ### End-to-End Tests
+
 - Test full workflows
 - Use test fixtures/containers
 - Mark with `@pytest.mark.e2e`
