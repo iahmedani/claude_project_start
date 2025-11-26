@@ -45,7 +45,7 @@ if [[ "$TOOL_NAME" =~ ^(Write|Edit|MultiEdit)$ ]] && [[ "$FILE_PATH" =~ \.(py|ts
         
         if [ "$PRP_COUNT" -eq 0 ]; then
             # Just warn, don't block
-            echo "💡 Tip: No recent PRPs found. Consider running /project:plan first for structured implementation." >&2
+            echo "💡 Tip: No recent PRPs found. Consider running /project-plan first for structured implementation." >&2
         fi
     fi
 fi

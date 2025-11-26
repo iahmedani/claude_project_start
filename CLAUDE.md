@@ -6,10 +6,11 @@
 ## Purpose
 
 This orchestrator transforms Claude Code into a **full-stack development team** working together through:
+
 - **12 Specialized Subagents** for different roles (Architect, Developer, Tester, Frontend, DevOps, etc.)
-- **16 Custom Commands** for standardized workflows (TDD, Docker, Database, Frontend, etc.)
+- **17 Custom Commands** for standardized workflows (TDD, Docker, Database, Frontend, etc.)
 - **Hooks** for automation and quality gates
-- **11 Skills** for domain-specific knowledge (React, Vue, GraphQL, Docker, etc.)
+- **12 Skills** for domain-specific knowledge (React, Vue, GraphQL, Docker, etc.)
 
 ## Project Structure
 
@@ -29,7 +30,7 @@ your-project/
 │   │   ├── security-auditor.md
 │   │   ├── tester.md
 │   │   └── validation-gates.md
-│   ├── commands/            # 16 Custom slash commands
+│   ├── commands/            # 17 Custom slash commands
 │   │   ├── primer.md
 │   │   ├── project-db.md
 │   │   ├── project-deploy.md
@@ -48,7 +49,7 @@ your-project/
 │   │   ├── project-test.md
 │   │   └── project-validate.md
 │   ├── hooks/               # 6 Automation hooks
-│   ├── skills/              # 11 Domain skills
+│   ├── skills/              # 12 Domain skills
 │   │   ├── api-design.md
 │   │   ├── ci-cd.md
 │   │   ├── css-styling.md
@@ -76,39 +77,44 @@ your-project/
 ## Quick Start Commands
 
 ### Project Management
-| Command | Description |
-|---------|-------------|
-| `/project-init` | Initialize project structure & config |
-| `/project-plan` | Create a comprehensive feature plan (PRP) |
-| `/project-status` | Show project progress dashboard |
-| `/primer` | Comprehensive repository analysis |
+
+| Command           | Description                               |
+| ----------------- | ----------------------------------------- |
+| `/project-init`   | Initialize project structure & config     |
+| `/project-plan`   | Create a comprehensive feature plan (PRP) |
+| `/project-status` | Show project progress dashboard           |
+| `/primer`         | Comprehensive repository analysis         |
 
 ### Development
-| Command | Description |
-|---------|-------------|
-| `/project-implement` | Execute implementation from a plan |
-| `/project-tdd` | Test-Driven Development workflow |
-| `/project-refactor` | Safe code refactoring |
-| `/project-frontend` | Frontend component/page/hook creation |
+
+| Command              | Description                           |
+| -------------------- | ------------------------------------- |
+| `/project-implement` | Execute implementation from a plan    |
+| `/project-tdd`       | Test-Driven Development workflow      |
+| `/project-refactor`  | Safe code refactoring                 |
+| `/project-frontend`  | Frontend component/page/hook creation |
 
 ### Infrastructure
-| Command | Description |
-|---------|-------------|
-| `/project-env` | Set up development environment |
-| `/project-docker` | Manage Docker containers |
-| `/project-db` | Database migrations & management |
+
+| Command           | Description                      |
+| ----------------- | -------------------------------- |
+| `/project-env`    | Set up development environment   |
+| `/project-docker` | Manage Docker containers         |
+| `/project-db`     | Database migrations & management |
 
 ### Quality & Review
-| Command | Description |
-|---------|-------------|
-| `/project-test` | Execute test cycle |
-| `/project-review` | Run comprehensive code review |
-| `/project-validate` | Run all quality gates |
+
+| Command              | Description                      |
+| -------------------- | -------------------------------- |
+| `/project-test`      | Execute test cycle               |
+| `/project-review`    | Run comprehensive code review    |
+| `/project-validate`  | Run all quality gates            |
 | `/project-fix-issue` | Fix a GitHub issue automatically |
 
 ### Deployment
-| Command | Description |
-|---------|-------------|
+
+| Command           | Description                        |
+| ----------------- | ---------------------------------- |
 | `/project-deploy` | Prepare deployment & release notes |
 
 ## Development Lifecycle
@@ -125,57 +131,63 @@ your-project/
 ## Subagent Team
 
 ### Core Team
-| Agent | Role | Key Capabilities |
-|-------|------|------------------|
-| `project-manager` | Requirements, planning | PRPs, issue tracking |
-| `fullstack-architect` | System design | ADRs, tech stack, patterns |
-| `developer` | Backend implementation | API, services, clean code |
-| `frontend-developer` | UI implementation | React, Vue, components |
-| `tester` | Quality assurance | TDD, coverage |
+
+| Agent                 | Role                   | Key Capabilities           |
+| --------------------- | ---------------------- | -------------------------- |
+| `project-manager`     | Requirements, planning | PRPs, issue tracking       |
+| `fullstack-architect` | System design          | ADRs, tech stack, patterns |
+| `developer`           | Backend implementation | API, services, clean code  |
+| `frontend-developer`  | UI implementation      | React, Vue, components     |
+| `tester`              | Quality assurance      | TDD, coverage              |
 
 ### Support Team
-| Agent | Role | Key Capabilities |
-|-------|------|------------------|
-| `architect` | Backend design | Service patterns |
-| `reviewer` | Code review | Standards, best practices |
-| `documenter` | Documentation | README, API docs |
-| `security-auditor` | Security review | OWASP, vulnerabilities |
-| `performance-specialist` | Optimization | Profiling, bottlenecks |
-| `devops-engineer` | Infrastructure | Docker, K8s, CI/CD |
-| `validation-gates` | Quality gates | All checks must pass |
+
+| Agent                    | Role            | Key Capabilities          |
+| ------------------------ | --------------- | ------------------------- |
+| `architect`              | Backend design  | Service patterns          |
+| `reviewer`               | Code review     | Standards, best practices |
+| `documenter`             | Documentation   | README, API docs          |
+| `security-auditor`       | Security review | OWASP, vulnerabilities    |
+| `performance-specialist` | Optimization    | Profiling, bottlenecks    |
+| `devops-engineer`        | Infrastructure  | Docker, K8s, CI/CD        |
+| `validation-gates`       | Quality gates   | All checks must pass      |
 
 ## Skills Reference
 
 ### Frontend
+
 - **react-development** - React, Next.js, hooks, patterns
 - **vue-development** - Vue 3, Composition API, Pinia
 - **css-styling** - Tailwind, modern CSS, animations
 - **state-management** - Zustand, React Query, Pinia
 
 ### Backend
+
 - **api-design** - REST, response formats, validation
 - **graphql-api** - Schema design, Apollo, resolvers
 - **database** - ORM patterns, migrations, queries
 - **python-development** - Python best practices
 
 ### DevOps
+
 - **docker-kubernetes** - Containers, orchestration
 - **ci-cd** - GitHub Actions, pipelines, IaC
 
 ### General
+
 - **git-workflow** - Branching, commits, PRs
 - **testing-tdd** - TDD methodology, test patterns
 
 ## Hooks (Automation)
 
-| Hook | Trigger | Purpose |
-|------|---------|---------|
-| `block-dangerous.sh` | PreToolUse (Bash) | Block risky commands |
-| `validate-planning.sh` | PreToolUse (Edit/Write) | Remind about planning |
-| `auto-format.sh` | PostToolUse | Format code after edits |
-| `log-tool-usage.sh` | PostToolUse | Audit trail |
-| `session-tracker.sh` | Stop | Track session activity |
-| `save-context.sh` | PreCompact | Preserve context snapshots |
+| Hook                   | Trigger                 | Purpose                    |
+| ---------------------- | ----------------------- | -------------------------- |
+| `block-dangerous.sh`   | PreToolUse (Bash)       | Block risky commands       |
+| `validate-planning.sh` | PreToolUse (Edit/Write) | Remind about planning      |
+| `auto-format.sh`       | PostToolUse             | Format code after edits    |
+| `log-tool-usage.sh`    | PostToolUse             | Audit trail                |
+| `session-tracker.sh`   | Stop                    | Track session activity     |
+| `save-context.sh`      | PreCompact              | Preserve context snapshots |
 
 ## Workflow Rules
 
@@ -197,6 +209,7 @@ your-project/
 ### Quality Gates
 
 All implementations must pass:
+
 - [ ] Type checking (tsc / pyright / mypy)
 - [ ] Linting (ESLint / Ruff)
 - [ ] Unit tests (100% pass rate)
@@ -208,6 +221,7 @@ All implementations must pass:
 ## Configuration
 
 Edit `project-config.yaml` in your project root to customize:
+
 - **Stack configuration** - Frontend, backend, database, API style
 - **Language versions** - Node, Python, TypeScript
 - **Code quality tools** - Linters, formatters, type checkers
@@ -228,6 +242,7 @@ Edit `project-config.yaml` in your project root to customize:
 ## Tech Stack Support
 
 ### Frontend
+
 - React / Next.js 14+
 - Vue 3 / Nuxt 3
 - Svelte / SvelteKit
@@ -236,17 +251,20 @@ Edit `project-config.yaml` in your project root to customize:
 - Zustand / Pinia / Redux
 
 ### Backend
+
 - Node.js / Express / NestJS
 - Python / FastAPI / Django
 - Go / Rust
 - GraphQL / tRPC
 
 ### Database
+
 - PostgreSQL / MySQL / SQLite
 - MongoDB / Redis
 - Prisma / Drizzle / SQLAlchemy
 
 ### DevOps
+
 - Docker / Docker Compose
 - Kubernetes / Helm
 - GitHub Actions / GitLab CI
@@ -260,4 +278,4 @@ Edit `project-config.yaml` in your project root to customize:
 
 ---
 
-*This orchestrator is designed for full-stack development across any tech stack. Customize `project-config.yaml` for your specific needs.*
+_This orchestrator is designed for full-stack development across any tech stack. Customize `project-config.yaml` for your specific needs._
