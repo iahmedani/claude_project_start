@@ -1,5 +1,7 @@
 # Vue 3 Development Skill
 
+> **Related**: `state-management` (Pinia), `css-styling` (Tailwind), `testing-tdd` (Vitest)
+
 Best practices for building modern Vue 3 applications with Composition API.
 
 ## Vue 3 Fundamentals
@@ -7,9 +9,10 @@ Best practices for building modern Vue 3 applications with Composition API.
 ### Composition API Basics
 
 #### Script Setup
+
 ```vue
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from "vue";
 
 // Props with defaults
 interface Props {
@@ -23,8 +26,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 // Emits with type safety
 const emit = defineEmits<{
-  (e: 'update', value: number): void;
-  (e: 'close'): void;
+  (e: "update", value: number): void;
+  (e: "close"): void;
 }>();
 
 // Reactive state
@@ -37,7 +40,7 @@ const doubleCount = computed(() => localCount.value * 2);
 // Methods
 const increment = () => {
   localCount.value++;
-  emit('update', localCount.value);
+  emit("update", localCount.value);
 };
 
 // Watchers
@@ -47,7 +50,7 @@ watch(localCount, (newVal, oldVal) => {
 
 // Lifecycle
 onMounted(() => {
-  console.log('Component mounted');
+  console.log("Component mounted");
 });
 
 // Expose to parent (if needed)
@@ -70,16 +73,17 @@ defineExpose({
 ### Composables (Custom Hooks)
 
 #### useCounter
+
 ```typescript
 // composables/useCounter.ts
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
 
 export function useCounter(initialValue = 0) {
   const count = ref(initialValue);
 
   const increment = () => count.value++;
   const decrement = () => count.value--;
-  const reset = () => count.value = initialValue;
+  const reset = () => (count.value = initialValue);
 
   const isPositive = computed(() => count.value > 0);
 
@@ -94,9 +98,10 @@ export function useCounter(initialValue = 0) {
 ```
 
 #### useFetch
+
 ```typescript
 // composables/useFetch.ts
-import { ref, watchEffect, type Ref } from 'vue';
+import { ref, watchEffect, type Ref } from "vue";
 
 interface FetchState<T> {
   data: Ref<T | null>;
@@ -115,12 +120,12 @@ export function useFetch<T>(url: string | Ref<string>): FetchState<T> {
     error.value = null;
 
     try {
-      const urlValue = typeof url === 'string' ? url : url.value;
+      const urlValue = typeof url === "string" ? url : url.value;
       const response = await fetch(urlValue);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       data.value = await response.json();
     } catch (e) {
-      error.value = e instanceof Error ? e : new Error('Unknown error');
+      error.value = e instanceof Error ? e : new Error("Unknown error");
     } finally {
       isLoading.value = false;
     }
@@ -139,17 +144,24 @@ export function useFetch<T>(url: string | Ref<string>): FetchState<T> {
 ```
 
 #### useLocalStorage
+
 ```typescript
 // composables/useLocalStorage.ts
-import { ref, watch, type Ref } from 'vue';
+import { ref, watch, type Ref } from "vue";
 
 export function useLocalStorage<T>(key: string, defaultValue: T): Ref<T> {
   const storedValue = localStorage.getItem(key);
-  const value = ref<T>(storedValue ? JSON.parse(storedValue) : defaultValue) as Ref<T>;
+  const value = ref<T>(
+    storedValue ? JSON.parse(storedValue) : defaultValue,
+  ) as Ref<T>;
 
-  watch(value, (newValue) => {
-    localStorage.setItem(key, JSON.stringify(newValue));
-  }, { deep: true });
+  watch(
+    value,
+    (newValue) => {
+      localStorage.setItem(key, JSON.stringify(newValue));
+    },
+    { deep: true },
+  );
 
   return value;
 }
@@ -158,13 +170,14 @@ export function useLocalStorage<T>(key: string, defaultValue: T): Ref<T> {
 ### Pinia Store
 
 #### Store Definition
+
 ```typescript
 // stores/auth.ts
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import type { User } from '@/types';
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
+import type { User } from "@/types";
 
-export const useAuthStore = defineStore('auth', () => {
+export const useAuthStore = defineStore("auth", () => {
   // State
   const user = ref<User | null>(null);
   const token = ref<string | null>(null);
@@ -172,7 +185,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Getters
   const isAuthenticated = computed(() => !!token.value);
-  const userName = computed(() => user.value?.name ?? 'Guest');
+  const userName = computed(() => user.value?.name ?? "Guest");
 
   // Actions
   async function login(email: string, password: string) {
@@ -181,7 +194,7 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await authApi.login({ email, password });
       user.value = response.user;
       token.value = response.token;
-      localStorage.setItem('token', response.token);
+      localStorage.setItem("token", response.token);
     } finally {
       isLoading.value = false;
     }
@@ -190,11 +203,11 @@ export const useAuthStore = defineStore('auth', () => {
   function logout() {
     user.value = null;
     token.value = null;
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
   }
 
   async function checkAuth() {
-    const savedToken = localStorage.getItem('token');
+    const savedToken = localStorage.getItem("token");
     if (savedToken) {
       token.value = savedToken;
       try {
@@ -221,41 +234,42 @@ export const useAuthStore = defineStore('auth', () => {
 ### Vue Router
 
 #### Route Configuration
+
 ```typescript
 // router/index.ts
-import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
+import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/',
-      component: () => import('@/layouts/DefaultLayout.vue'),
+      path: "/",
+      component: () => import("@/layouts/DefaultLayout.vue"),
       children: [
         {
-          path: '',
-          name: 'home',
-          component: () => import('@/pages/Home.vue'),
+          path: "",
+          name: "home",
+          component: () => import("@/pages/Home.vue"),
         },
         {
-          path: 'dashboard',
-          name: 'dashboard',
-          component: () => import('@/pages/Dashboard.vue'),
+          path: "dashboard",
+          name: "dashboard",
+          component: () => import("@/pages/Dashboard.vue"),
           meta: { requiresAuth: true },
         },
       ],
     },
     {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/pages/Login.vue'),
+      path: "/login",
+      name: "login",
+      component: () => import("@/pages/Login.vue"),
       meta: { guestOnly: true },
     },
     {
-      path: '/:pathMatch(.*)*',
-      name: 'not-found',
-      component: () => import('@/pages/NotFound.vue'),
+      path: "/:pathMatch(.*)*",
+      name: "not-found",
+      component: () => import("@/pages/NotFound.vue"),
     },
   ],
 });
@@ -265,11 +279,11 @@ router.beforeEach((to, from) => {
   const auth = useAuthStore();
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return { name: 'login', query: { redirect: to.fullPath } };
+    return { name: "login", query: { redirect: to.fullPath } };
   }
 
   if (to.meta.guestOnly && auth.isAuthenticated) {
-    return { name: 'dashboard' };
+    return { name: "dashboard" };
   }
 });
 
@@ -279,37 +293,39 @@ export default router;
 ### Component Patterns
 
 #### Provide/Inject
+
 ```vue
 <!-- Parent component -->
 <script setup lang="ts">
-import { provide, ref } from 'vue';
-import type { Theme } from '@/types';
+import { provide, ref } from "vue";
+import type { Theme } from "@/types";
 
-const theme = ref<Theme>('light');
+const theme = ref<Theme>("light");
 const toggleTheme = () => {
-  theme.value = theme.value === 'light' ? 'dark' : 'light';
+  theme.value = theme.value === "light" ? "dark" : "light";
 };
 
-provide('theme', { theme, toggleTheme });
+provide("theme", { theme, toggleTheme });
 </script>
 
 <!-- Child component (any depth) -->
 <script setup lang="ts">
-import { inject } from 'vue';
-import type { Theme } from '@/types';
+import { inject } from "vue";
+import type { Theme } from "@/types";
 
 const { theme, toggleTheme } = inject<{
   theme: Ref<Theme>;
   toggleTheme: () => void;
-}>('theme')!;
+}>("theme")!;
 </script>
 ```
 
 #### Renderless Components
+
 ```vue
 <!-- components/DataFetcher.vue -->
 <script setup lang="ts" generic="T">
-import { useFetch } from '@/composables/useFetch';
+import { useFetch } from "@/composables/useFetch";
 
 const props = defineProps<{
   url: string;
@@ -341,25 +357,26 @@ defineSlots<{
 ### Form Handling
 
 #### VeeValidate + Zod
+
 ```vue
 <script setup lang="ts">
-import { useForm } from 'vee-validate';
-import { toTypedSchema } from '@vee-validate/zod';
-import { z } from 'zod';
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import { z } from "zod";
 
 const schema = toTypedSchema(
   z.object({
-    email: z.string().email('Invalid email'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-  })
+    email: z.string().email("Invalid email"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+  }),
 );
 
 const { handleSubmit, errors, defineField, isSubmitting } = useForm({
   validationSchema: schema,
 });
 
-const [email, emailAttrs] = defineField('email');
-const [password, passwordAttrs] = defineField('password');
+const [email, emailAttrs] = defineField("email");
+const [password, passwordAttrs] = defineField("password");
 
 const onSubmit = handleSubmit(async (values) => {
   await login(values);
@@ -369,17 +386,27 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <form @submit="onSubmit">
     <div>
-      <input v-model="email" v-bind="emailAttrs" type="email" placeholder="Email" />
+      <input
+        v-model="email"
+        v-bind="emailAttrs"
+        type="email"
+        placeholder="Email"
+      />
       <span v-if="errors.email" class="error">{{ errors.email }}</span>
     </div>
 
     <div>
-      <input v-model="password" v-bind="passwordAttrs" type="password" placeholder="Password" />
+      <input
+        v-model="password"
+        v-bind="passwordAttrs"
+        type="password"
+        placeholder="Password"
+      />
       <span v-if="errors.password" class="error">{{ errors.password }}</span>
     </div>
 
     <button type="submit" :disabled="isSubmitting">
-      {{ isSubmitting ? 'Loading...' : 'Login' }}
+      {{ isSubmitting ? "Loading..." : "Login" }}
     </button>
   </form>
 </template>
@@ -388,49 +415,51 @@ const onSubmit = handleSubmit(async (values) => {
 ## Testing
 
 ### Component Testing with Vitest
-```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import UserCard from './UserCard.vue';
 
-describe('UserCard', () => {
+```typescript
+import { describe, it, expect, vi } from "vitest";
+import { mount } from "@vue/test-utils";
+import { createPinia, setActivePinia } from "pinia";
+import UserCard from "./UserCard.vue";
+
+describe("UserCard", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
 
-  it('renders user name', () => {
+  it("renders user name", () => {
     const wrapper = mount(UserCard, {
       props: {
-        user: { id: 1, name: 'John Doe', email: 'john@example.com' },
+        user: { id: 1, name: "John Doe", email: "john@example.com" },
       },
     });
 
-    expect(wrapper.text()).toContain('John Doe');
+    expect(wrapper.text()).toContain("John Doe");
   });
 
-  it('emits delete event', async () => {
+  it("emits delete event", async () => {
     const wrapper = mount(UserCard, {
       props: {
-        user: { id: 1, name: 'John', email: 'john@test.com' },
+        user: { id: 1, name: "John", email: "john@test.com" },
       },
     });
 
-    await wrapper.find('[data-testid="delete-btn"]').trigger('click');
+    await wrapper.find('[data-testid="delete-btn"]').trigger("click");
 
-    expect(wrapper.emitted('delete')).toBeTruthy();
-    expect(wrapper.emitted('delete')![0]).toEqual([1]);
+    expect(wrapper.emitted("delete")).toBeTruthy();
+    expect(wrapper.emitted("delete")![0]).toEqual([1]);
   });
 });
 ```
 
 ### Composable Testing
-```typescript
-import { describe, it, expect } from 'vitest';
-import { useCounter } from './useCounter';
 
-describe('useCounter', () => {
-  it('increments count', () => {
+```typescript
+import { describe, it, expect } from "vitest";
+import { useCounter } from "./useCounter";
+
+describe("useCounter", () => {
+  it("increments count", () => {
     const { count, increment } = useCounter(0);
 
     expect(count.value).toBe(0);
@@ -438,7 +467,7 @@ describe('useCounter', () => {
     expect(count.value).toBe(1);
   });
 
-  it('starts with initial value', () => {
+  it("starts with initial value", () => {
     const { count } = useCounter(10);
     expect(count.value).toBe(10);
   });
@@ -448,11 +477,12 @@ describe('useCounter', () => {
 ## Performance Optimization
 
 ### Async Components
+
 ```typescript
-import { defineAsyncComponent } from 'vue';
+import { defineAsyncComponent } from "vue";
 
 const HeavyChart = defineAsyncComponent({
-  loader: () => import('./HeavyChart.vue'),
+  loader: () => import("./HeavyChart.vue"),
   loadingComponent: LoadingSpinner,
   errorComponent: ErrorDisplay,
   delay: 200,
@@ -461,6 +491,7 @@ const HeavyChart = defineAsyncComponent({
 ```
 
 ### v-memo for Lists
+
 ```vue
 <template>
   <div v-for="item in items" :key="item.id" v-memo="[item.id, item.updated]">
@@ -470,9 +501,10 @@ const HeavyChart = defineAsyncComponent({
 ```
 
 ### Computed with Getter/Setter
+
 ```typescript
 const searchQuery = computed({
-  get: () => route.query.q as string ?? '',
+  get: () => (route.query.q as string) ?? "",
   set: (value) => router.push({ query: { ...route.query, q: value } }),
 });
 ```

@@ -1,10 +1,13 @@
 # CSS & Styling Skill
 
+> **Related**: `react-development` (component styling), `vue-development` (scoped styles)
+
 Modern CSS techniques, Tailwind CSS, and responsive design best practices.
 
 ## Modern CSS
 
 ### CSS Variables (Custom Properties)
+
 ```css
 :root {
   /* Colors */
@@ -16,8 +19,8 @@ Modern CSS techniques, Tailwind CSS, and responsive design best practices.
   --color-error: #ef4444;
 
   /* Typography */
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'Fira Code', monospace;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "Fira Code", monospace;
 
   /* Spacing scale */
   --space-1: 0.25rem;
@@ -53,6 +56,7 @@ Modern CSS techniques, Tailwind CSS, and responsive design best practices.
 ```
 
 ### Container Queries
+
 ```css
 /* Container setup */
 .card-container {
@@ -80,6 +84,7 @@ Modern CSS techniques, Tailwind CSS, and responsive design best practices.
 ```
 
 ### CSS Grid Layouts
+
 ```css
 /* Auto-fit responsive grid */
 .grid-auto {
@@ -100,11 +105,21 @@ Modern CSS techniques, Tailwind CSS, and responsive design best practices.
   min-height: 100vh;
 }
 
-.dashboard-header { grid-area: header; }
-.dashboard-sidebar { grid-area: sidebar; }
-.dashboard-main { grid-area: main; }
-.dashboard-aside { grid-area: aside; }
-.dashboard-footer { grid-area: footer; }
+.dashboard-header {
+  grid-area: header;
+}
+.dashboard-sidebar {
+  grid-area: sidebar;
+}
+.dashboard-main {
+  grid-area: main;
+}
+.dashboard-aside {
+  grid-area: aside;
+}
+.dashboard-footer {
+  grid-area: footer;
+}
 
 /* Responsive grid */
 @media (max-width: 1024px) {
@@ -121,6 +136,7 @@ Modern CSS techniques, Tailwind CSS, and responsive design best practices.
 ```
 
 ### Flexbox Patterns
+
 ```css
 /* Center everything */
 .flex-center {
@@ -157,48 +173,47 @@ Modern CSS techniques, Tailwind CSS, and responsive design best practices.
 ## Tailwind CSS
 
 ### Configuration
+
 ```javascript
 // tailwind.config.js
 module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx,vue}'],
-  darkMode: 'class',
+  content: ["./src/**/*.{js,ts,jsx,tsx,vue}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
         primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
+          50: "#eff6ff",
+          500: "#3b82f6",
+          600: "#2563eb",
+          700: "#1d4ed8",
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ["Inter", "system-ui", "sans-serif"],
       },
       animation: {
-        'fade-in': 'fadeIn 0.3s ease-out',
-        'slide-up': 'slideUp 0.3s ease-out',
+        "fade-in": "fadeIn 0.3s ease-out",
+        "slide-up": "slideUp 0.3s ease-out",
       },
       keyframes: {
         fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
         },
         slideUp: {
-          '0%': { transform: 'translateY(10px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
+          "0%": { transform: "translateY(10px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
         },
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-  ],
+  plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
 };
 ```
 
 ### Component Examples
+
 ```tsx
 // Button variants
 const buttonVariants = {
@@ -254,6 +269,7 @@ const buttonVariants = {
 ```
 
 ### Responsive Patterns
+
 ```tsx
 // Responsive navigation
 <nav className="
@@ -292,6 +308,7 @@ const buttonVariants = {
 ## Animations & Transitions
 
 ### CSS Transitions
+
 ```css
 /* Smooth hover transitions */
 .btn {
@@ -333,11 +350,16 @@ const buttonVariants = {
 ```
 
 ### CSS Animations
+
 ```css
 /* Loading spinner */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner {
@@ -351,8 +373,13 @@ const buttonVariants = {
 
 /* Pulse animation */
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .skeleton {
@@ -380,6 +407,7 @@ const buttonVariants = {
 ## Accessibility
 
 ### Focus States
+
 ```css
 /* Custom focus ring */
 :focus-visible {
@@ -404,6 +432,7 @@ const buttonVariants = {
 ```
 
 ### Reduced Motion
+
 ```css
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -417,6 +446,7 @@ const buttonVariants = {
 ```
 
 ### Color Contrast
+
 ```css
 /* Ensure sufficient contrast */
 .text-muted {
@@ -436,22 +466,31 @@ const buttonVariants = {
 ## Best Practices
 
 ### BEM Naming
+
 ```css
 /* Block */
-.card {}
+.card {
+}
 
 /* Element */
-.card__header {}
-.card__body {}
-.card__footer {}
+.card__header {
+}
+.card__body {
+}
+.card__footer {
+}
 
 /* Modifier */
-.card--featured {}
-.card--compact {}
-.card__header--sticky {}
+.card--featured {
+}
+.card--compact {
+}
+.card__header--sticky {
+}
 ```
 
 ### Utility-First with Components
+
 ```css
 /* Base utilities */
 @layer utilities {

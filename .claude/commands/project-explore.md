@@ -65,7 +65,7 @@ Create exploration notes or update existing documentation.
 ║  • [insight 2]                                                ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  ➡️  SUGGESTED ACTIONS                                        ║
-║  • /project:plan [feature] - Plan changes to this area       ║
-║  • /project:refactor [area] - Refactor this area             ║
+║  • /project-plan [feature] - Plan changes to this area       ║
+║  • /project-refactor [area] - Refactor this area             ║
 ╚══════════════════════════════════════════════════════════════╝
 ```

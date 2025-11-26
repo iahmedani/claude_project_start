@@ -1,5 +1,7 @@
 # React & Next.js Development Skill
 
+> **Related**: `state-management` (Zustand, React Query), `css-styling` (Tailwind), `testing-tdd` (React Testing Library)
+
 Best practices for building modern React applications with Next.js.
 
 ## React Fundamentals
@@ -7,8 +9,9 @@ Best practices for building modern React applications with Next.js.
 ### Component Patterns
 
 #### Compound Components
+
 ```tsx
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from "react";
 
 interface TabsContextType {
   activeTab: string;
@@ -17,7 +20,13 @@ interface TabsContextType {
 
 const TabsContext = createContext<TabsContextType | null>(null);
 
-function Tabs({ children, defaultTab }: { children: ReactNode; defaultTab: string }) {
+function Tabs({
+  children,
+  defaultTab,
+}: {
+  children: ReactNode;
+  defaultTab: string;
+}) {
   const [activeTab, setActiveTab] = useState(defaultTab);
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab }}>
@@ -27,12 +36,16 @@ function Tabs({ children, defaultTab }: { children: ReactNode; defaultTab: strin
 }
 
 function TabList({ children }: { children: ReactNode }) {
-  return <div role="tablist" className="tab-list">{children}</div>;
+  return (
+    <div role="tablist" className="tab-list">
+      {children}
+    </div>
+  );
 }
 
 function Tab({ id, children }: { id: string; children: ReactNode }) {
   const context = useContext(TabsContext);
-  if (!context) throw new Error('Tab must be used within Tabs');
+  if (!context) throw new Error("Tab must be used within Tabs");
 
   return (
     <button
@@ -47,7 +60,7 @@ function Tab({ id, children }: { id: string; children: ReactNode }) {
 
 function TabPanel({ id, children }: { id: string; children: ReactNode }) {
   const context = useContext(TabsContext);
-  if (!context) throw new Error('TabPanel must be used within Tabs');
+  if (!context) throw new Error("TabPanel must be used within Tabs");
   if (context.activeTab !== id) return null;
 
   return <div role="tabpanel">{children}</div>;
@@ -69,19 +82,25 @@ Tabs.Panel = TabPanel;
 ```
 
 #### Render Props
+
 ```tsx
 interface MousePosition {
   x: number;
   y: number;
 }
 
-function MouseTracker({ render }: { render: (pos: MousePosition) => ReactNode }) {
+function MouseTracker({
+  render,
+}: {
+  render: (pos: MousePosition) => ReactNode;
+}) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => setPosition({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handler);
-    return () => window.removeEventListener('mousemove', handler);
+    const handler = (e: MouseEvent) =>
+      setPosition({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", handler);
+    return () => window.removeEventListener("mousemove", handler);
   }, []);
 
   return <>{render(position)}</>;
@@ -91,6 +110,7 @@ function MouseTracker({ render }: { render: (pos: MousePosition) => ReactNode })
 ### Custom Hooks
 
 #### useDebounce
+
 ```tsx
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -105,10 +125,11 @@ function useDebounce<T>(value: T, delay: number): T {
 ```
 
 #### useLocalStorage
+
 ```tsx
 function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === 'undefined') return initialValue;
+    if (typeof window === "undefined") return initialValue;
     try {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
@@ -117,21 +138,25 @@ function useLocalStorage<T>(key: string, initialValue: T) {
     }
   });
 
-  const setValue = useCallback((value: T | ((val: T) => T)) => {
-    setStoredValue(prev => {
-      const valueToStore = value instanceof Function ? value(prev) : value;
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      }
-      return valueToStore;
-    });
-  }, [key]);
+  const setValue = useCallback(
+    (value: T | ((val: T) => T)) => {
+      setStoredValue((prev) => {
+        const valueToStore = value instanceof Function ? value(prev) : value;
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        }
+        return valueToStore;
+      });
+    },
+    [key],
+  );
 
   return [storedValue, setValue] as const;
 }
 ```
 
 #### useAsync
+
 ```tsx
 interface AsyncState<T> {
   data: T | null;
@@ -148,13 +173,19 @@ function useAsync<T>(asyncFn: () => Promise<T>, deps: unknown[] = []) {
 
   useEffect(() => {
     let mounted = true;
-    setState(prev => ({ ...prev, isLoading: true }));
+    setState((prev) => ({ ...prev, isLoading: true }));
 
     asyncFn()
-      .then(data => mounted && setState({ data, error: null, isLoading: false }))
-      .catch(error => mounted && setState({ data: null, error, isLoading: false }));
+      .then(
+        (data) => mounted && setState({ data, error: null, isLoading: false }),
+      )
+      .catch(
+        (error) => mounted && setState({ data: null, error, isLoading: false }),
+      );
 
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, deps);
 
   return state;
@@ -164,14 +195,15 @@ function useAsync<T>(asyncFn: () => Promise<T>, deps: unknown[] = []) {
 ## Next.js 14 (App Router)
 
 ### Server Components
+
 ```tsx
 // app/users/page.tsx - Server Component (default)
-import { prisma } from '@/lib/prisma';
+import { prisma } from "@/lib/prisma";
 
 export default async function UsersPage() {
   // Direct database access - no API needed!
   const users = await prisma.user.findMany({
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: "desc" },
     take: 10,
   });
 
@@ -179,7 +211,7 @@ export default async function UsersPage() {
     <div>
       <h1>Users</h1>
       <ul>
-        {users.map(user => (
+        {users.map((user) => (
           <li key={user.id}>{user.name}</li>
         ))}
       </ul>
@@ -189,11 +221,12 @@ export default async function UsersPage() {
 ```
 
 ### Client Components
-```tsx
-'use client';
 
-import { useState, useTransition } from 'react';
-import { deleteUser } from './actions';
+```tsx
+"use client";
+
+import { useState, useTransition } from "react";
+import { deleteUser } from "./actions";
 
 export function DeleteButton({ userId }: { userId: string }) {
   const [isPending, startTransition] = useTransition();
@@ -206,21 +239,22 @@ export function DeleteButton({ userId }: { userId: string }) {
 
   return (
     <button onClick={handleDelete} disabled={isPending}>
-      {isPending ? 'Deleting...' : 'Delete'}
+      {isPending ? "Deleting..." : "Delete"}
     </button>
   );
 }
 ```
 
 ### Server Actions
+
 ```tsx
 // app/users/actions.ts
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { z } from "zod";
 
 const createUserSchema = z.object({
   name: z.string().min(1).max(100),
@@ -229,8 +263,8 @@ const createUserSchema = z.object({
 
 export async function createUser(formData: FormData) {
   const validated = createUserSchema.safeParse({
-    name: formData.get('name'),
-    email: formData.get('email'),
+    name: formData.get("name"),
+    email: formData.get("email"),
   });
 
   if (!validated.success) {
@@ -239,17 +273,18 @@ export async function createUser(formData: FormData) {
 
   await prisma.user.create({ data: validated.data });
 
-  revalidatePath('/users');
-  redirect('/users');
+  revalidatePath("/users");
+  redirect("/users");
 }
 
 export async function deleteUser(userId: string) {
   await prisma.user.delete({ where: { id: userId } });
-  revalidatePath('/users');
+  revalidatePath("/users");
 }
 ```
 
 ### Loading & Error States
+
 ```tsx
 // app/users/loading.tsx
 export default function Loading() {
@@ -266,7 +301,7 @@ export default function Loading() {
 }
 
 // app/users/error.tsx
-'use client';
+("use client");
 
 export default function Error({
   error,
@@ -291,42 +326,50 @@ export default function Error({
 ```
 
 ### Middleware
+
 ```tsx
 // middleware.ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   // Authentication check
-  const token = request.cookies.get('token')?.value;
+  const token = request.cookies.get("token")?.value;
 
-  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  if (!token && request.nextUrl.pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Add custom headers
   const response = NextResponse.next();
-  response.headers.set('x-custom-header', 'value');
+  response.headers.set("x-custom-header", "value");
 
   return response;
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/api/:path*'],
+  matcher: ["/dashboard/:path*", "/api/:path*"],
 };
 ```
 
 ## Performance Optimization
 
 ### Memoization
+
 ```tsx
-import { memo, useMemo, useCallback } from 'react';
+import { memo, useMemo, useCallback } from "react";
 
 // Memoize component
-const ExpensiveList = memo(function ExpensiveList({ items }: { items: Item[] }) {
+const ExpensiveList = memo(function ExpensiveList({
+  items,
+}: {
+  items: Item[];
+}) {
   return (
     <ul>
-      {items.map(item => <li key={item.id}>{item.name}</li>)}
+      {items.map((item) => (
+        <li key={item.id}>{item.name}</li>
+      ))}
     </ul>
   );
 });
@@ -335,11 +378,11 @@ const ExpensiveList = memo(function ExpensiveList({ items }: { items: Item[] }) 
 function Dashboard({ data }: { data: DataPoint[] }) {
   const sortedData = useMemo(
     () => [...data].sort((a, b) => b.value - a.value),
-    [data]
+    [data],
   );
 
   const handleClick = useCallback((id: string) => {
-    console.log('Clicked:', id);
+    console.log("Clicked:", id);
   }, []);
 
   return <Chart data={sortedData} onClick={handleClick} />;
@@ -347,17 +390,18 @@ function Dashboard({ data }: { data: DataPoint[] }) {
 ```
 
 ### Code Splitting
+
 ```tsx
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
 // Dynamic import with loading state
-const HeavyChart = dynamic(() => import('@/components/HeavyChart'), {
+const HeavyChart = dynamic(() => import("@/components/HeavyChart"), {
   loading: () => <ChartSkeleton />,
   ssr: false, // Disable SSR for client-only components
 });
 
 // Conditional dynamic import
-const AdminPanel = dynamic(() => import('@/components/AdminPanel'));
+const AdminPanel = dynamic(() => import("@/components/AdminPanel"));
 
 function Dashboard({ user }: { user: User }) {
   return (
@@ -372,32 +416,33 @@ function Dashboard({ user }: { user: User }) {
 ## Testing
 
 ### Component Testing
-```tsx
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { UserForm } from './UserForm';
 
-describe('UserForm', () => {
-  it('submits form with valid data', async () => {
+```tsx
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { UserForm } from "./UserForm";
+
+describe("UserForm", () => {
+  it("submits form with valid data", async () => {
     const onSubmit = vi.fn();
     render(<UserForm onSubmit={onSubmit} />);
 
-    await userEvent.type(screen.getByLabelText(/name/i), 'John Doe');
-    await userEvent.type(screen.getByLabelText(/email/i), 'john@example.com');
-    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    await userEvent.type(screen.getByLabelText(/name/i), "John Doe");
+    await userEvent.type(screen.getByLabelText(/email/i), "john@example.com");
+    await userEvent.click(screen.getByRole("button", { name: /submit/i }));
 
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith({
-        name: 'John Doe',
-        email: 'john@example.com',
+        name: "John Doe",
+        email: "john@example.com",
       });
     });
   });
 
-  it('shows validation errors', async () => {
+  it("shows validation errors", async () => {
     render(<UserForm onSubmit={vi.fn()} />);
 
-    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    await userEvent.click(screen.getByRole("button", { name: /submit/i }));
 
     expect(await screen.findByText(/name is required/i)).toBeInTheDocument();
     expect(await screen.findByText(/email is required/i)).toBeInTheDocument();
@@ -408,10 +453,11 @@ describe('UserForm', () => {
 ## Common Patterns
 
 ### Form Handling with React Hook Form
+
 ```tsx
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 const schema = z.object({
   email: z.string().email(),
@@ -435,14 +481,14 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <input {...register('email')} placeholder="Email" />
+      <input {...register("email")} placeholder="Email" />
       {errors.email && <span>{errors.email.message}</span>}
 
-      <input {...register('password')} type="password" placeholder="Password" />
+      <input {...register("password")} type="password" placeholder="Password" />
       {errors.password && <span>{errors.password.message}</span>}
 
       <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Loading...' : 'Login'}
+        {isSubmitting ? "Loading..." : "Login"}
       </button>
     </form>
   );

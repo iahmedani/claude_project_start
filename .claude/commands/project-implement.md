@@ -22,7 +22,7 @@ Implement a feature following a Product Requirements Prompt.
 
 If no $ARGUMENTS provided, list available PRPs:
 ```bash
-ls -la docs/planning/PRP-*.md 2>/dev/null || echo "No PRPs found. Run /project:plan first."
+ls -la docs/planning/PRP-*.md 2>/dev/null || echo "No PRPs found. Run /project-plan first."
 ```
 
 ## Implementation Workflow
@@ -167,11 +167,11 @@ After completion:
 ╠══════════════════════════════════════════════════════════════╣
 ║  STEP COMPLETED: Implementation                               ║
 ║  ───────────────────────────────────────────────────────────  ║
-║  ➡️  NEXT STEP: Run /project:review for final review          ║
+║  ➡️  NEXT STEP: Run /project-review for final review          ║
 ║                                                               ║
 ║  Alternatives:                                                ║
-║  • /project:validate - Run all validation gates              ║
-║  • /project:deploy - Prepare for deployment                  ║
+║  • /project-validate - Run all validation gates              ║
+║  • /project-deploy - Prepare for deployment                  ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 

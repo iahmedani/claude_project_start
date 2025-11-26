@@ -1,10 +1,13 @@
 # CI/CD & DevOps Skill
 
+> **Related**: `docker-kubernetes` (containers), `testing-tdd` (test stages), `git-workflow` (branch strategies)
+
 Continuous Integration and Deployment pipelines, automation, and infrastructure.
 
 ## GitHub Actions
 
 ### Complete CI/CD Pipeline
+
 ```yaml
 # .github/workflows/ci-cd.yml
 name: CI/CD Pipeline
@@ -18,7 +21,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  NODE_VERSION: '20'
+  NODE_VERSION: "20"
 
 jobs:
   # Job 1: Lint & Type Check
@@ -31,7 +34,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -53,7 +56,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -158,6 +161,7 @@ jobs:
 ```
 
 ### Reusable Workflows
+
 ```yaml
 # .github/workflows/reusable-deploy.yml
 name: Reusable Deploy
@@ -197,6 +201,7 @@ jobs:
 ```
 
 ### Matrix Builds
+
 ```yaml
 # .github/workflows/matrix.yml
 name: Matrix Build
@@ -230,6 +235,7 @@ jobs:
 ## GitLab CI/CD
 
 ### Complete Pipeline
+
 ```yaml
 # .gitlab-ci.yml
 stages:
@@ -310,6 +316,7 @@ deploy-production:
 ## Terraform
 
 ### AWS Infrastructure
+
 ```hcl
 # main.tf
 terraform {
@@ -416,6 +423,7 @@ output "alb_dns" {
 ```
 
 ### Terraform Commands
+
 ```bash
 # Initialize
 terraform init
@@ -438,6 +446,7 @@ terraform import aws_s3_bucket.example my-bucket
 ## Monitoring & Observability
 
 ### Prometheus Configuration
+
 ```yaml
 # prometheus.yml
 global:
@@ -447,17 +456,17 @@ global:
 alerting:
   alertmanagers:
     - static_configs:
-        - targets: ['alertmanager:9093']
+        - targets: ["alertmanager:9093"]
 
 rule_files:
   - /etc/prometheus/rules/*.yml
 
 scrape_configs:
-  - job_name: 'prometheus'
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["localhost:9090"]
 
-  - job_name: 'app'
+  - job_name: "app"
     kubernetes_sd_configs:
       - role: pod
     relabel_configs:
@@ -472,6 +481,7 @@ scrape_configs:
 ```
 
 ### Alert Rules
+
 ```yaml
 # alerts.yml
 groups:
@@ -499,6 +509,7 @@ groups:
 ## Security Best Practices
 
 ### Secrets Management
+
 ```yaml
 # Using External Secrets Operator
 apiVersion: external-secrets.io/v1beta1
@@ -524,6 +535,7 @@ spec:
 ```
 
 ### Container Security
+
 ```dockerfile
 # Security best practices in Dockerfile
 FROM node:20-alpine

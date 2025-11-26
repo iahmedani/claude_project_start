@@ -78,7 +78,7 @@ After completion, display:
 ║  ───────────────────────────────────────────────────────────  ║
 ║  ➡️  NEXT STEP: Run /primer to analyze your codebase          ║
 ║                                                               ║
-║  Alternative: Run /project:plan to start planning a feature   ║
+║  Alternative: Run /project-plan to start planning a feature   ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
 

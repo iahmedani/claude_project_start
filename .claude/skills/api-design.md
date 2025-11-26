@@ -1,10 +1,13 @@
 # API Design Skill
 
+> **Related**: `database` (data layer), `graphql-api` (GraphQL alternative), `python-development` (FastAPI)
+
 Best practices for designing and implementing RESTful APIs.
 
 ## REST Conventions
 
 ### URL Structure
+
 ```
 GET    /users           # List users
 POST   /users           # Create user
@@ -22,6 +25,7 @@ GET    /users?status=active&page=1&limit=20&sort=-created_at
 ```
 
 ### HTTP Status Codes
+
 ```
 200 OK           - Successful GET/PUT/PATCH
 201 Created      - Successful POST
@@ -36,6 +40,7 @@ GET    /users?status=active&page=1&limit=20&sort=-created_at
 ```
 
 ### Response Format
+
 ```json
 {
   "data": {
@@ -53,6 +58,7 @@ GET    /users?status=active&page=1&limit=20&sort=-created_at
 ```
 
 ### Error Response
+
 ```json
 {
   "error": {
@@ -69,6 +75,7 @@ GET    /users?status=active&page=1&limit=20&sort=-created_at
 ```
 
 ### Pagination Response
+
 ```json
 {
   "data": [...],
@@ -86,6 +93,7 @@ GET    /users?status=active&page=1&limit=20&sort=-created_at
 ## FastAPI Implementation
 
 ### Router Structure
+
 ```python
 from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import Annotated
@@ -125,6 +133,7 @@ async def get_user(
 ```
 
 ### Request/Response Models
+
 ```python
 from pydantic import BaseModel, Field, EmailStr
 from datetime import datetime
@@ -138,18 +147,20 @@ class UserResponse(BaseModel):
     name: str
     email: str
     created_at: datetime
-    
+
     model_config = {"from_attributes": True}
 ```
 
 ## Security
 
 ### Authentication Header
+
 ```
 Authorization: Bearer <token>
 ```
 
 ### Rate Limiting Headers
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -157,6 +168,7 @@ X-RateLimit-Reset: 1640000000
 ```
 
 ### CORS Configuration
+
 ```python
 from fastapi.middleware.cors import CORSMiddleware
 

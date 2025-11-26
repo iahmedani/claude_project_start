@@ -1,5 +1,7 @@
 # Docker & Kubernetes Skill
 
+> **Related**: `ci-cd` (pipeline integration), `python-development` (Python containers), `git-workflow` (GitOps)
+
 Containerization and orchestration best practices for modern applications.
 
 ## Docker Fundamentals
@@ -7,6 +9,7 @@ Containerization and orchestration best practices for modern applications.
 ### Dockerfile Best Practices
 
 #### Node.js Application
+
 ```dockerfile
 # syntax=docker/dockerfile:1
 
@@ -52,6 +55,7 @@ CMD ["node", "dist/main.js"]
 ```
 
 #### Python Application
+
 ```dockerfile
 # syntax=docker/dockerfile:1
 
@@ -101,9 +105,10 @@ CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.
 ### Docker Compose
 
 #### Development Stack
+
 ```yaml
 # docker-compose.yml
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -159,8 +164,8 @@ services:
   mailhog:
     image: mailhog/mailhog
     ports:
-      - "1025:1025"  # SMTP
-      - "8025:8025"  # Web UI
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
     networks:
       - app-network
 
@@ -174,9 +179,10 @@ networks:
 ```
 
 #### Production Stack
+
 ```yaml
 # docker-compose.prod.yml
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -190,10 +196,10 @@ services:
       replicas: 3
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 256M
       update_config:
         parallelism: 1
@@ -230,6 +236,7 @@ networks:
 ```
 
 ### Docker Commands Reference
+
 ```bash
 # Build
 docker build -t myapp:latest .
@@ -259,6 +266,7 @@ docker image prune -a
 ## Kubernetes
 
 ### Deployment
+
 ```yaml
 # k8s/deployment.yaml
 apiVersion: apps/v1
@@ -345,6 +353,7 @@ spec:
 ```
 
 ### Service
+
 ```yaml
 # k8s/service.yaml
 apiVersion: v1
@@ -365,6 +374,7 @@ spec:
 ```
 
 ### Ingress
+
 ```yaml
 # k8s/ingress.yaml
 apiVersion: networking.k8s.io/v1
@@ -395,6 +405,7 @@ spec:
 ```
 
 ### ConfigMap & Secrets
+
 ```yaml
 # k8s/configmap.yaml
 apiVersion: v1
@@ -419,6 +430,7 @@ stringData:
 ```
 
 ### Horizontal Pod Autoscaler
+
 ```yaml
 # k8s/hpa.yaml
 apiVersion: autoscaling/v2
@@ -455,6 +467,7 @@ spec:
 ```
 
 ### Kubectl Commands Reference
+
 ```bash
 # Cluster info
 kubectl cluster-info
@@ -486,6 +499,7 @@ kubectl scale deployment/app --replicas=5
 ## Helm
 
 ### Chart Structure
+
 ```
 mychart/
 ├── Chart.yaml
@@ -501,6 +515,7 @@ mychart/
 ```
 
 ### values.yaml
+
 ```yaml
 # values.yaml
 replicaCount: 3
@@ -543,6 +558,7 @@ secrets:
 ```
 
 ### Helm Commands
+
 ```bash
 # Install
 helm install myapp ./mychart -f values.yaml

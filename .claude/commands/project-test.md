@@ -65,7 +65,7 @@ Use the tester subagent to:
 ║  • [file]: [percent]%                                         ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  [If all pass]                                                ║
-║  ➡️  NEXT STEP: Run /project:validate for all gates           ║
+║  ➡️  NEXT STEP: Run /project-validate for all gates           ║
 ║                                                               ║
 ║  [If failures]                                                ║
 ║  ➡️  FIX REQUIRED: See failing tests above                    ║

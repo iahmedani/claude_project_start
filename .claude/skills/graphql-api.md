@@ -1,10 +1,13 @@
 # GraphQL API Skill
 
+> **Related**: `api-design` (REST alternative), `database` (data layer), `react-development` (Apollo Client)
+
 Best practices for designing and implementing GraphQL APIs.
 
 ## Schema Design
 
 ### Type Definitions
+
 ```graphql
 # schema.graphql
 
@@ -162,13 +165,14 @@ type Subscription {
 ## Server Implementation
 
 ### Apollo Server (Node.js)
+
 ```typescript
 // src/graphql/server.ts
-import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
-import { makeExecutableSchema } from '@graphql-tools/schema';
-import { applyMiddleware } from 'graphql-middleware';
-import { shield, rule, allow } from 'graphql-shield';
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { applyMiddleware } from "graphql-middleware";
+import { shield, rule, allow } from "graphql-shield";
 
 // Context type
 interface Context {
@@ -181,14 +185,18 @@ const resolvers = {
   Query: {
     me: (_: unknown, __: unknown, { user }: Context) => user,
 
-    user: async (_: unknown, { id }: { id: string }, { dataSources }: Context) => {
+    user: async (
+      _: unknown,
+      { id }: { id: string },
+      { dataSources }: Context,
+    ) => {
       return dataSources.users.findById(id);
     },
 
     users: async (
       _: unknown,
       { filter, sort, pagination }: UsersArgs,
-      { dataSources }: Context
+      { dataSources }: Context,
     ) => {
       return dataSources.users.findMany({ filter, sort, pagination });
     },
@@ -198,7 +206,7 @@ const resolvers = {
     createUser: async (
       _: unknown,
       { input }: { input: CreateUserInput },
-      { dataSources }: Context
+      { dataSources }: Context,
     ) => {
       try {
         const user = await dataSources.users.create(input);
@@ -206,7 +214,7 @@ const resolvers = {
       } catch (error) {
         return {
           user: null,
-          errors: [{ message: error.message, code: 'CREATE_FAILED' }],
+          errors: [{ message: error.message, code: "CREATE_FAILED" }],
         };
       }
     },
@@ -214,7 +222,7 @@ const resolvers = {
     updateUser: async (
       _: unknown,
       { id, input }: { id: string; input: UpdateUserInput },
-      { dataSources }: Context
+      { dataSources }: Context,
     ) => {
       try {
         const user = await dataSources.users.update(id, input);
@@ -222,7 +230,7 @@ const resolvers = {
       } catch (error) {
         return {
           user: null,
-          errors: [{ message: error.message, code: 'UPDATE_FAILED' }],
+          errors: [{ message: error.message, code: "UPDATE_FAILED" }],
         };
       }
     },
@@ -239,7 +247,7 @@ const resolvers = {
 
 // Authorization with graphql-shield
 const isAuthenticated = rule()((_, __, { user }) => !!user);
-const isAdmin = rule()((_, __, { user }) => user?.role === 'ADMIN');
+const isAdmin = rule()((_, __, { user }) => user?.role === "ADMIN");
 
 const permissions = shield({
   Query: {
@@ -255,7 +263,7 @@ const permissions = shield({
 // Create schema with middleware
 const schema = applyMiddleware(
   makeExecutableSchema({ typeDefs, resolvers }),
-  permissions
+  permissions,
 );
 
 // Apollo Server setup
@@ -278,7 +286,7 @@ const server = new ApolloServer<Context>({
 await server.start();
 
 app.use(
-  '/graphql',
+  "/graphql",
   expressMiddleware(server, {
     context: async ({ req }) => ({
       user: await getUserFromToken(req.headers.authorization),
@@ -287,15 +295,16 @@ app.use(
         posts: new PostsDataSource(),
       },
     }),
-  })
+  }),
 );
 ```
 
 ### DataLoader for N+1 Prevention
+
 ```typescript
 // src/graphql/dataloaders.ts
-import DataLoader from 'dataloader';
-import { prisma } from '../lib/prisma';
+import DataLoader from "dataloader";
+import { prisma } from "../lib/prisma";
 
 export function createLoaders() {
   return {
@@ -334,21 +343,22 @@ const resolvers = {
 ## Client Implementation
 
 ### Apollo Client (React)
+
 ```typescript
 // src/lib/apollo.ts
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
+import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 
 const httpLink = createHttpLink({
   uri: process.env.NEXT_PUBLIC_GRAPHQL_URL,
 });
 
 const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : '',
+      authorization: token ? `Bearer ${token}` : "",
     },
   };
 });
@@ -360,7 +370,7 @@ export const client = new ApolloClient({
       Query: {
         fields: {
           users: {
-            keyArgs: ['filter', 'sort'],
+            keyArgs: ["filter", "sort"],
             merge(existing, incoming, { args }) {
               if (!args?.pagination?.page || args.pagination.page === 1) {
                 return incoming;
@@ -377,13 +387,14 @@ export const client = new ApolloClient({
   }),
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: "cache-and-network",
     },
   },
 });
 ```
 
 ### Generated Hooks (GraphQL Code Generator)
+
 ```typescript
 // src/graphql/users.graphql
 query GetUsers($filter: UserFilter, $sort: UserSortInput, $pagination: PaginationInput) {
@@ -487,11 +498,12 @@ function UsersList() {
 ## Testing
 
 ### Resolver Tests
-```typescript
-import { createTestServer } from './test-utils';
 
-describe('User Resolvers', () => {
-  it('creates a user', async () => {
+```typescript
+import { createTestServer } from "./test-utils";
+
+describe("User Resolvers", () => {
+  it("creates a user", async () => {
     const server = createTestServer({ user: adminUser });
 
     const result = await server.executeOperation({
@@ -504,14 +516,14 @@ describe('User Resolvers', () => {
         }
       `,
       variables: {
-        input: { email: 'test@example.com', name: 'Test User' },
+        input: { email: "test@example.com", name: "Test User" },
       },
     });
 
     expect(result.body.singleResult.errors).toBeUndefined();
     expect(result.body.singleResult.data?.createUser.user).toMatchObject({
-      email: 'test@example.com',
-      name: 'Test User',
+      email: "test@example.com",
+      name: "Test User",
     });
   });
 });
@@ -520,13 +532,14 @@ describe('User Resolvers', () => {
 ## Best Practices
 
 ### Error Handling
+
 ```typescript
 // Custom error classes
 class GraphQLError extends Error {
   constructor(
     message: string,
     public code: string,
-    public extensions?: Record<string, unknown>
+    public extensions?: Record<string, unknown>,
   ) {
     super(message);
   }
@@ -534,18 +547,19 @@ class GraphQLError extends Error {
 
 class NotFoundError extends GraphQLError {
   constructor(resource: string, id: string) {
-    super(`${resource} with id ${id} not found`, 'NOT_FOUND', { resource, id });
+    super(`${resource} with id ${id} not found`, "NOT_FOUND", { resource, id });
   }
 }
 
 class ValidationError extends GraphQLError {
   constructor(errors: Array<{ field: string; message: string }>) {
-    super('Validation failed', 'VALIDATION_ERROR', { errors });
+    super("Validation failed", "VALIDATION_ERROR", { errors });
   }
 }
 ```
 
 ### Rate Limiting
+
 ```typescript
 import { createRateLimitDirective } from 'graphql-rate-limit-directive';
 

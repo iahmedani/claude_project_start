@@ -1,21 +1,24 @@
 # State Management Skill
 
+> **Related**: `react-development` (React patterns), `vue-development` (Vue patterns), `api-design` (data fetching)
+
 Modern state management patterns for React and Vue applications.
 
 ## React State Management
 
 ### Zustand (Recommended)
+
 ```typescript
 // stores/useAuthStore.ts
-import { create } from 'zustand';
-import { devtools, persist, subscribeWithSelector } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
+import { create } from "zustand";
+import { devtools, persist, subscribeWithSelector } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 interface User {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'user';
+  role: "admin" | "user";
 }
 
 interface AuthState {
@@ -57,7 +60,7 @@ export const useAuthStore = create<AuthStore>()(
               });
             } catch (error) {
               set({
-                error: error instanceof Error ? error.message : 'Login failed',
+                error: error instanceof Error ? error.message : "Login failed",
                 isLoading: false,
               });
               throw error;
@@ -66,7 +69,7 @@ export const useAuthStore = create<AuthStore>()(
 
           logout: () => {
             set({ user: null, token: null });
-            localStorage.removeItem('token');
+            localStorage.removeItem("token");
           },
 
           updateUser: (updates) => {
@@ -78,27 +81,29 @@ export const useAuthStore = create<AuthStore>()(
           },
 
           clearError: () => set({ error: null }),
-        }))
+        })),
       ),
       {
-        name: 'auth-storage',
+        name: "auth-storage",
         partialize: (state) => ({ token: state.token }),
-      }
+      },
     ),
-    { name: 'AuthStore' }
-  )
+    { name: "AuthStore" },
+  ),
 );
 
 // Selectors (for performance)
 export const useUser = () => useAuthStore((state) => state.user);
 export const useIsAuthenticated = () => useAuthStore((state) => !!state.token);
-export const useIsAdmin = () => useAuthStore((state) => state.user?.role === 'admin');
+export const useIsAdmin = () =>
+  useAuthStore((state) => state.user?.role === "admin");
 ```
 
 ### Zustand with Slices Pattern
+
 ```typescript
 // stores/slices/cartSlice.ts
-import { StateCreator } from 'zustand';
+import { StateCreator } from "zustand";
 
 export interface CartItem {
   id: string;
@@ -109,7 +114,7 @@ export interface CartItem {
 
 export interface CartSlice {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  addItem: (item: Omit<CartItem, "quantity">) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -118,7 +123,7 @@ export interface CartSlice {
 
 export const createCartSlice: StateCreator<
   CartSlice,
-  [['zustand/immer', never]],
+  [["zustand/immer", never]],
   [],
   CartSlice
 > = (set, get) => ({
@@ -153,15 +158,18 @@ export const createCartSlice: StateCreator<
   clearCart: () => set({ items: [] }),
 
   total: () => {
-    return get().items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    return get().items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
   },
 });
 
 // stores/index.ts
-import { create } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
-import { createCartSlice, CartSlice } from './slices/cartSlice';
-import { createUserSlice, UserSlice } from './slices/userSlice';
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
+import { createCartSlice, CartSlice } from "./slices/cartSlice";
+import { createUserSlice, UserSlice } from "./slices/userSlice";
 
 type StoreState = CartSlice & UserSlice;
 
@@ -169,11 +177,12 @@ export const useStore = create<StoreState>()(
   immer((...args) => ({
     ...createCartSlice(...args),
     ...createUserSlice(...args),
-  }))
+  })),
 );
 ```
 
 ### React Context (For simpler cases)
+
 ```typescript
 // contexts/ThemeContext.tsx
 import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
@@ -228,17 +237,18 @@ export function useTheme() {
 ```
 
 ### TanStack Query (Server State)
+
 ```typescript
 // hooks/useUsers.ts
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
 // Query keys factory
 export const userKeys = {
-  all: ['users'] as const,
-  lists: () => [...userKeys.all, 'list'] as const,
+  all: ["users"] as const,
+  lists: () => [...userKeys.all, "list"] as const,
   list: (filters: UserFilters) => [...userKeys.lists(), filters] as const,
-  details: () => [...userKeys.all, 'detail'] as const,
+  details: () => [...userKeys.all, "detail"] as const,
   detail: (id: string) => [...userKeys.details(), id] as const,
 };
 
@@ -326,10 +336,11 @@ export function useDeleteUser() {
 ## Vue State Management
 
 ### Pinia (Recommended)
+
 ```typescript
 // stores/cart.ts
-import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { defineStore } from "pinia";
+import { computed, ref } from "vue";
 
 interface CartItem {
   id: string;
@@ -338,87 +349,92 @@ interface CartItem {
   quantity: number;
 }
 
-export const useCartStore = defineStore('cart', () => {
-  // State
-  const items = ref<CartItem[]>([]);
-  const isLoading = ref(false);
+export const useCartStore = defineStore(
+  "cart",
+  () => {
+    // State
+    const items = ref<CartItem[]>([]);
+    const isLoading = ref(false);
 
-  // Getters
-  const total = computed(() =>
-    items.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  );
+    // Getters
+    const total = computed(() =>
+      items.value.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    );
 
-  const itemCount = computed(() =>
-    items.value.reduce((sum, item) => sum + item.quantity, 0)
-  );
+    const itemCount = computed(() =>
+      items.value.reduce((sum, item) => sum + item.quantity, 0),
+    );
 
-  const isEmpty = computed(() => items.value.length === 0);
+    const isEmpty = computed(() => items.value.length === 0);
 
-  // Actions
-  function addItem(item: Omit<CartItem, 'quantity'>) {
-    const existing = items.value.find((i) => i.id === item.id);
-    if (existing) {
-      existing.quantity += 1;
-    } else {
-      items.value.push({ ...item, quantity: 1 });
-    }
-  }
-
-  function removeItem(id: string) {
-    const index = items.value.findIndex((i) => i.id === id);
-    if (index > -1) {
-      items.value.splice(index, 1);
-    }
-  }
-
-  function updateQuantity(id: string, quantity: number) {
-    const item = items.value.find((i) => i.id === id);
-    if (item) {
-      item.quantity = Math.max(0, quantity);
-      if (item.quantity === 0) {
-        removeItem(id);
+    // Actions
+    function addItem(item: Omit<CartItem, "quantity">) {
+      const existing = items.value.find((i) => i.id === item.id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        items.value.push({ ...item, quantity: 1 });
       }
     }
-  }
 
-  function clearCart() {
-    items.value = [];
-  }
-
-  async function checkout() {
-    isLoading.value = true;
-    try {
-      await api.checkout(items.value);
-      clearCart();
-    } finally {
-      isLoading.value = false;
+    function removeItem(id: string) {
+      const index = items.value.findIndex((i) => i.id === id);
+      if (index > -1) {
+        items.value.splice(index, 1);
+      }
     }
-  }
 
-  return {
-    // State
-    items,
-    isLoading,
-    // Getters
-    total,
-    itemCount,
-    isEmpty,
-    // Actions
-    addItem,
-    removeItem,
-    updateQuantity,
-    clearCart,
-    checkout,
-  };
-}, {
-  persist: true, // Enable persistence with pinia-plugin-persistedstate
-});
+    function updateQuantity(id: string, quantity: number) {
+      const item = items.value.find((i) => i.id === id);
+      if (item) {
+        item.quantity = Math.max(0, quantity);
+        if (item.quantity === 0) {
+          removeItem(id);
+        }
+      }
+    }
+
+    function clearCart() {
+      items.value = [];
+    }
+
+    async function checkout() {
+      isLoading.value = true;
+      try {
+        await api.checkout(items.value);
+        clearCart();
+      } finally {
+        isLoading.value = false;
+      }
+    }
+
+    return {
+      // State
+      items,
+      isLoading,
+      // Getters
+      total,
+      itemCount,
+      isEmpty,
+      // Actions
+      addItem,
+      removeItem,
+      updateQuantity,
+      clearCart,
+      checkout,
+    };
+  },
+  {
+    persist: true, // Enable persistence with pinia-plugin-persistedstate
+  },
+);
 ```
 
 ### Pinia with Options API Style
+
 ```typescript
 // stores/auth.ts
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 
 interface AuthState {
   user: User | null;
@@ -426,7 +442,7 @@ interface AuthState {
   isLoading: boolean;
 }
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
     user: null,
     token: null,
@@ -435,8 +451,8 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     isAuthenticated: (state) => !!state.token,
-    isAdmin: (state) => state.user?.role === 'admin',
-    userName: (state) => state.user?.name ?? 'Guest',
+    isAdmin: (state) => state.user?.role === "admin",
+    userName: (state) => state.user?.name ?? "Guest",
   },
 
   actions: {
@@ -454,7 +470,7 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.user = null;
       this.token = null;
-      localStorage.removeItem('token');
+      localStorage.removeItem("token");
     },
 
     async fetchUser() {
@@ -468,7 +484,7 @@ export const useAuthStore = defineStore('auth', {
   },
 
   persist: {
-    paths: ['token'],
+    paths: ["token"],
   },
 });
 ```
@@ -476,6 +492,7 @@ export const useAuthStore = defineStore('auth', {
 ## State Management Patterns
 
 ### Optimistic Updates
+
 ```typescript
 // React with Zustand
 const useOptimisticTodos = create<TodoStore>((set, get) => ({
@@ -492,9 +509,7 @@ const useOptimisticTodos = create<TodoStore>((set, get) => ({
       const realTodo = await api.createTodo(text);
       // Replace temp with real
       set((state) => ({
-        todos: state.todos.map((t) =>
-          t.id === tempId ? realTodo : t
-        ),
+        todos: state.todos.map((t) => (t.id === tempId ? realTodo : t)),
       }));
     } catch (error) {
       // Rollback on error
@@ -508,6 +523,7 @@ const useOptimisticTodos = create<TodoStore>((set, get) => ({
 ```
 
 ### Computed/Derived State
+
 ```typescript
 // Zustand with derived state
 const useStore = create((set, get) => ({
@@ -551,9 +567,10 @@ function TodoList() {
 ```
 
 ### State Machine Pattern
+
 ```typescript
 // Using XState concepts with Zustand
-type AuthStatus = 'idle' | 'authenticating' | 'authenticated' | 'error';
+type AuthStatus = "idle" | "authenticating" | "authenticated" | "error";
 
 interface AuthMachine {
   status: AuthStatus;
@@ -568,29 +585,32 @@ interface AuthMachine {
 }
 
 const useAuthMachine = create<AuthMachine>((set) => ({
-  status: 'idle',
+  status: "idle",
   user: null,
   error: null,
 
-  startLogin: () => set({ status: 'authenticating', error: null }),
+  startLogin: () => set({ status: "authenticating", error: null }),
 
-  loginSuccess: (user) => set({
-    status: 'authenticated',
-    user,
-    error: null
-  }),
+  loginSuccess: (user) =>
+    set({
+      status: "authenticated",
+      user,
+      error: null,
+    }),
 
-  loginError: (error) => set({
-    status: 'error',
-    error,
-    user: null
-  }),
+  loginError: (error) =>
+    set({
+      status: "error",
+      error,
+      user: null,
+    }),
 
-  logout: () => set({
-    status: 'idle',
-    user: null,
-    error: null
-  }),
+  logout: () =>
+    set({
+      status: "idle",
+      user: null,
+      error: null,
+    }),
 }));
 ```
 

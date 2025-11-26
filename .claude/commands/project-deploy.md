@@ -12,7 +12,7 @@ Prepare project for deployment with release notes and checklists.
 
 ## Prerequisites Check
 
-1. All validation gates passed (`/project:validate`)
+1. All validation gates passed (`/project-validate`)
 2. Code reviewed and approved
 3. Clean git state
 4. On correct branch (main/master)
