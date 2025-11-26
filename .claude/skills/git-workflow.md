@@ -1,5 +1,7 @@
 # Git Workflow Skill
 
+> **Related**: `ci-cd` (Git in pipelines), `docker-kubernetes` (GitOps)
+
 ## Commit Message Convention
 
 Use Conventional Commits format:
@@ -13,6 +15,7 @@ Use Conventional Commits format:
 ```
 
 ### Types
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation only

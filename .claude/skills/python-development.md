@@ -1,10 +1,13 @@
 # Python Development Skill
 
+> **Related**: `api-design` (FastAPI), `database` (SQLAlchemy), `testing-tdd` (pytest), `ci-cd` (Python CI)
+
 This skill provides Claude with best practices for Python development.
 
 ## Coding Standards
 
 ### File Structure
+
 ```
 project/
 ├── src/
@@ -25,6 +28,7 @@ project/
 ```
 
 ### Type Hints (Always Use)
+
 ```python
 from typing import Optional, Any
 from collections.abc import Sequence
@@ -38,6 +42,7 @@ def process_items(
 ```
 
 ### Pydantic Models
+
 ```python
 from pydantic import BaseModel, Field
 
@@ -45,11 +50,12 @@ class User(BaseModel):
     id: int
     name: str = Field(..., min_length=1, max_length=100)
     email: str = Field(..., pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$')
-    
+
     model_config = {"frozen": True}
 ```
 
 ### Error Handling
+
 ```python
 class ServiceError(Exception):
     """Base exception for service errors."""
@@ -67,6 +73,7 @@ def get_user(user_id: int) -> User:
 ```
 
 ### Logging
+
 ```python
 import logging
 
@@ -86,6 +93,7 @@ def process_data(data: dict) -> dict:
 ## Testing Patterns
 
 ### Fixtures
+
 ```python
 import pytest
 
@@ -99,6 +107,7 @@ def mock_db(mocker):
 ```
 
 ### Parametrized Tests
+
 ```python
 @pytest.mark.parametrize("input_val,expected", [
     ("hello", "HELLO"),
@@ -112,6 +121,7 @@ def test_uppercase(input_val: str, expected: str):
 ## Tools Configuration
 
 ### pyproject.toml
+
 ```toml
 [tool.ruff]
 line-length = 88
