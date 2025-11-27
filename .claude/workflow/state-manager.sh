@@ -61,7 +61,7 @@ set_phase() {
     ensure_dirs
     
     if [ ! -f "$STATE_FILE" ]; then
-        echo "Error: STATE.md not found. Run /project:init first." >&2
+        echo "Error: STATE.md not found. Run /project-init first." >&2
         return 1
     fi
     
@@ -176,11 +176,11 @@ get_next_action() {
     
     case "$phase" in
         "not_initialized")
-            next="/project:init - Initialize project structure"
+            next="/project-init - Initialize project structure"
             ;;
         "initialization")
             if ! is_complete "Project initialized" > /dev/null 2>&1; then
-                next="/project:init - Complete initialization"
+                next="/project-init - Complete initialization"
             elif ! is_complete "Configuration reviewed" > /dev/null 2>&1; then
                 next="Review project-config.yaml and customize for your project"
             else
@@ -191,49 +191,49 @@ get_next_action() {
             if ! is_complete "Codebase analyzed" > /dev/null 2>&1; then
                 next="/primer - Analyze codebase"
             else
-                next="/project:plan [feature] - Plan your first feature"
+                next="/project-plan [feature] - Plan your first feature"
             fi
             ;;
         "planning")
             if ! is_complete "PRP created" > /dev/null 2>&1; then
-                next="/project:plan [feature] - Create a PRP"
+                next="/project-plan [feature] - Create a PRP"
             else
-                next="/project:implement [PRP-name] - Start implementation"
+                next="/project-implement [PRP-name] - Start implementation"
             fi
             ;;
         "design")
-            next="/project:implement [PRP] - Begin implementation"
+            next="/project-implement [PRP] - Begin implementation"
             ;;
         "implementation")
             if ! is_complete "Tests written first" > /dev/null 2>&1; then
-                next="/project:tdd [feature] - Write tests first"
+                next="/project-tdd [feature] - Write tests first"
             elif ! is_complete "Code implemented" > /dev/null 2>&1; then
-                next="/project:implement - Continue implementation"
+                next="/project-implement - Continue implementation"
             else
-                next="/project:test - Run all tests"
+                next="/project-test - Run all tests"
             fi
             ;;
         "testing")
-            next="/project:review - Get code reviewed"
+            next="/project-review - Get code reviewed"
             ;;
         "review")
             if ! is_complete "Code reviewed" > /dev/null 2>&1; then
-                next="/project:review - Complete code review"
+                next="/project-review - Complete code review"
             else
-                next="/project:validate - Run validation gates"
+                next="/project-validate - Run validation gates"
             fi
             ;;
         "validation")
-            next="/project:deploy - Prepare deployment"
+            next="/project-deploy - Prepare deployment"
             ;;
         "deployment")
             next="Complete deployment checklist and release"
             ;;
         "complete")
-            next="/project:plan [next-feature] - Plan next feature"
+            next="/project-plan [next-feature] - Plan next feature"
             ;;
         *)
-            next="/project:status - Check current state"
+            next="/project-status - Check current state"
             ;;
     esac
     
@@ -320,7 +320,7 @@ active_prp: null
 ## Step Completion Checklist
 
 ### Phase 1: Initialization
-- [x] Project initialized (`/project:init`)
+- [x] Project initialized (`/project-init`)
 - [ ] Configuration reviewed (`project-config.yaml`)
 - [ ] CLAUDE.md customized
 
@@ -331,22 +331,22 @@ active_prp: null
 
 ### Phase 3: Planning
 - [ ] Requirements gathered
-- [ ] PRP created (`/project:plan`)
+- [ ] PRP created (`/project-plan`)
 - [ ] Architecture reviewed
 
 ### Phase 4: Implementation
 - [ ] Tests written first (TDD)
-- [ ] Code implemented (`/project:implement`)
+- [ ] Code implemented (`/project-implement`)
 - [ ] All tests passing
 
 ### Phase 5: Review & Validation
-- [ ] Code reviewed (`/project:review`)
-- [ ] All quality gates pass (`/project:validate`)
+- [ ] Code reviewed (`/project-review`)
+- [ ] All quality gates pass (`/project-validate`)
 - [ ] Documentation updated
 
 ### Phase 6: Deployment
 - [ ] Release notes prepared
-- [ ] Deployed (`/project:deploy`)
+- [ ] Deployed (`/project-deploy`)
 
 ## Recent Activity
 
