@@ -11,6 +11,7 @@ This orchestrator transforms Claude Code into a **full-stack development team** 
 - **17 Custom Commands** for standardized workflows (TDD, Docker, Database, Frontend, etc.)
 - **Hooks** for automation and quality gates
 - **12 Skills** for domain-specific knowledge (React, Vue, GraphQL, Docker, etc.)
+- **MCP Server with RAG** for intelligent context management and semantic search
 
 ## Core Development Philosophy
 
@@ -100,7 +101,12 @@ your-project/
 │   │   ├── testing-tdd.md
 │   │   └── vue-development.md
 │   ├── logs/                # Activity logs
+│   ├── rag-db/              # Vector database for RAG
 │   └── settings.json        # Tool permissions & hooks
+├── mcp-server/              # MCP server with RAG
+│   ├── src/                 # TypeScript source
+│   ├── dist/                # Compiled output
+│   └── package.json
 ├── docs/
 │   ├── planning/            # PRPs (feature plans)
 │   ├── architecture/        # ADRs (design decisions)
@@ -225,6 +231,51 @@ your-project/
 | `log-tool-usage.sh`    | PostToolUse             | Audit trail                |
 | `session-tracker.sh`   | Stop                    | Track session activity     |
 | `save-context.sh`      | PreCompact              | Preserve context snapshots |
+
+## MCP Server (RAG-Powered)
+
+The orchestrator includes an MCP server with RAG capabilities for intelligent context management.
+
+### Setup
+
+```bash
+cd mcp-server
+npm install
+npm run build
+npm run index  # Index project for RAG search
+```
+
+### MCP Tools
+
+| Tool                    | Description                        |
+| ----------------------- | ---------------------------------- |
+| `get_project_context`   | Get config, state, PRPs, ADRs      |
+| `search_codebase`       | Semantic search across source code |
+| `search_documentation`  | Search PRPs, ADRs, and guides      |
+| `get_relevant_skill`    | Retrieve relevant skill sections   |
+| `recall_decision`       | Find past architectural decisions  |
+| `update_workflow_state` | Update workflow phase/task         |
+| `index_project`         | Re-index project for RAG           |
+
+### MCP Resources
+
+| URI                | Description           |
+| ------------------ | --------------------- |
+| `project://config` | Project configuration |
+| `project://state`  | Workflow state        |
+| `project://prps`   | List of PRPs          |
+| `project://adrs`   | List of ADRs          |
+| `project://skills` | Available skills      |
+
+### MCP Prompts
+
+| Prompt           | Description                      |
+| ---------------- | -------------------------------- |
+| `create-prp`     | Generate PRP for new feature     |
+| `code-review`    | Comprehensive code review        |
+| `tdd-cycle`      | Test-Driven Development workflow |
+| `create-adr`     | Architecture Decision Record     |
+| `security-audit` | Security-focused code audit      |
 
 ## Workflow Rules
 

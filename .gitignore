@@ -1,7 +1,13 @@
 # Claude Code logs and runtime files
 .claude/logs/
 .claude/settings.local.json
+.claude/rag-db/
 CLAUDE.local.md
+
+# MCP Server
+mcp-server/dist/
+mcp-server/node_modules/
+.mcp.json
 
 # OS files
 .DS_Store

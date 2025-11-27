@@ -67,6 +67,18 @@ if [ -d "$SCRIPT_DIR/templates" ]; then
     cp -r "$SCRIPT_DIR/templates/"* "$TARGET_DIR/templates/" 2>/dev/null || true
 fi
 
+# Copy MCP server
+if [ -d "$SCRIPT_DIR/mcp-server" ]; then
+    echo -e "${GREEN}Copying MCP server...${NC}"
+    cp -r "$SCRIPT_DIR/mcp-server" "$TARGET_DIR/mcp-server"
+fi
+
+# Copy MCP configuration template
+if [ -f "$SCRIPT_DIR/.mcp.json.template" ]; then
+    echo -e "${GREEN}Copying MCP configuration template...${NC}"
+    cp "$SCRIPT_DIR/.mcp.json.template" "$TARGET_DIR/.mcp.json.template"
+fi
+
 # Create logs directory
 mkdir -p "$TARGET_DIR/.claude/logs"
 mkdir -p "$TARGET_DIR/.claude/logs/context-snapshots"
@@ -203,7 +215,11 @@ echo -e "${BLUE}Next steps:${NC}"
 echo "1. cd $TARGET_DIR"
 echo "2. Edit project-config.yaml with your project details"
 echo "3. Customize CLAUDE.md for your project"
-echo "4. Run 'claude' to start coding!"
+echo "4. (Optional) Set up MCP server with RAG:"
+echo "   cd mcp-server && npm install && npm run build"
+echo "   cp .mcp.json.template .mcp.json"
+echo "   npm run index  # Index project for RAG search"
+echo "5. Run 'claude' to start coding!"
 echo ""
 echo -e "${BLUE}Project Management:${NC}"
 echo "  /project-init     - Initialize project structure"

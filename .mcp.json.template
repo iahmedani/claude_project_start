@@ -1,5 +1,15 @@
 {
   "mcpServers": {
+    "claude-orchestrator": {
+      "comment": "Project orchestration with RAG-powered search and workflow management",
+      "command": "node",
+      "args": ["./mcp-server/dist/index.js"],
+      "env": {
+        "PROJECT_PATH": "${PROJECT_PATH}",
+        "CHROMA_PATH": "${PROJECT_PATH}/.claude/rag-db"
+      },
+      "disabled": false
+    },
     "filesystem": {
       "comment": "File system access - useful for working with files outside project",
       "command": "npx",
