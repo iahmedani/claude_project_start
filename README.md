@@ -1,12 +1,13 @@
 # Full-Stack Development Orchestrator for Claude Code
 
-A comprehensive orchestration system that transforms Claude Code into a **full-stack development team** with specialized agents, automated workflows, and domain-specific skills.
+A comprehensive orchestration system that transforms Claude Code into a **full-stack development team** with specialized agents, automated workflows, domain-specific skills, and **RAG-powered intelligent context management**.
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Quick Start](#quick-start)
 - [Installation](#installation)
+- [MCP Server with RAG](#mcp-server-with-rag)
 - [Project Structure](#project-structure)
 - [Agents](#agents)
 - [Commands](#commands)
@@ -27,15 +28,18 @@ This orchestrator provides:
 - **17 Slash Commands** - Standardized workflows for common tasks
 - **12 Domain Skills** - Deep knowledge in React, Vue, Docker, GraphQL, etc.
 - **6 Automation Hooks** - Quality gates and automated formatting
+- **MCP Server with RAG** - Intelligent context management and semantic search
 
 ### Why Use This?
 
-| Without Orchestrator | With Orchestrator       |
-| -------------------- | ----------------------- |
-| Generic responses    | Role-specific expertise |
-| Manual workflows     | Automated pipelines     |
-| Context overload     | Efficient delegation    |
-| Ad-hoc quality       | Enforced quality gates  |
+| Without Orchestrator | With Orchestrator               |
+| -------------------- | ------------------------------- |
+| Generic responses    | Role-specific expertise         |
+| Manual workflows     | Automated pipelines             |
+| Context overload     | Efficient RAG-powered retrieval |
+| Ad-hoc quality       | Enforced quality gates          |
+| Re-reading files     | Semantic search across codebase |
+| Lost context         | Persistent memory via RAG       |
 
 ---
 
@@ -49,12 +53,35 @@ git clone <this-repo>
 # 2. Navigate to your project
 cd /path/to/your/project
 
-# 3. Initialize with Claude Code
+# 3. (Optional) Set up MCP Server with RAG
+cd mcp-server && npm install && npm run build && cd ..
+cp .mcp.json.template .mcp.json
+cd mcp-server && npm run index && cd ..  # Index your project
+
+# 4. Initialize with Claude Code
 claude
 > /project-init
 
-# 4. Start building!
+# 5. Start building!
 > /project-plan "Add user authentication"
+```
+
+### With RAG Enabled
+
+Once the MCP server is running, Claude can:
+
+```bash
+# Semantic search across your codebase
+> "Find code related to user authentication"
+# → Uses search_codebase tool, returns relevant code chunks
+
+# Recall past decisions
+> "What was decided about the database schema?"
+# → Searches ADRs and PRPs for context
+
+# Get relevant skill guidance
+> "How should I structure React components?"
+# → Retrieves relevant sections from react-development skill
 ```
 
 ---
@@ -95,6 +122,174 @@ claude
 
 ---
 
+## MCP Server with RAG
+
+The orchestrator includes a powerful MCP (Model Context Protocol) server with RAG (Retrieval-Augmented Generation) capabilities for intelligent context management.
+
+### What is RAG?
+
+RAG allows Claude to **semantically search** your codebase and documentation instead of re-reading entire files. This means:
+
+- **Efficient context usage** - Only relevant code chunks are loaded
+- **Semantic search** - Find code by intent, not just keywords
+- **Persistent memory** - Past decisions and patterns are indexed
+- **Cross-session continuity** - Context survives between sessions
+
+### MCP Server Setup
+
+```bash
+cd mcp-server
+npm install
+npm run build
+
+# Index your project for RAG search
+npm run index
+
+# Configure Claude Code to use the MCP server
+cd ..
+cp .mcp.json.template .mcp.json
+```
+
+### Available MCP Tools
+
+| Tool                    | Description                           | Example Use                          |
+| ----------------------- | ------------------------------------- | ------------------------------------ |
+| `get_project_context`   | Get project config, state, PRPs, ADRs | "What's the current project status?" |
+| `search_codebase`       | Semantic search across source code    | "Find authentication logic"          |
+| `search_documentation`  | Search PRPs, ADRs, and guides         | "What was decided about caching?"    |
+| `get_relevant_skill`    | Retrieve relevant skill sections      | "How do I use React hooks?"          |
+| `recall_decision`       | Find past architectural decisions     | "Why did we choose PostgreSQL?"      |
+| `update_workflow_state` | Update current phase/task             | Automatic during workflows           |
+| `index_project`         | Re-index project for fresh search     | After major changes                  |
+| `get_rag_stats`         | Get indexing statistics               | Verify indexing status               |
+
+### Available MCP Resources
+
+| URI                    | Description                  |
+| ---------------------- | ---------------------------- |
+| `project://config`     | Project configuration (YAML) |
+| `project://state`      | Current workflow state       |
+| `project://prps`       | List of all PRPs             |
+| `project://adrs`       | List of all ADRs             |
+| `project://agents`     | Available agents             |
+| `project://skills`     | Available skills             |
+| `project://commands`   | Slash commands               |
+| `project://prp/{name}` | Specific PRP content         |
+| `project://adr/{name}` | Specific ADR content         |
+
+### Available MCP Prompts
+
+Pre-built prompt templates for common workflows:
+
+| Prompt              | Arguments                 | Description                   |
+| ------------------- | ------------------------- | ----------------------------- |
+| `create-prp`        | feature_name, description | Generate a comprehensive PRP  |
+| `code-review`       | files, focus              | Systematic code review        |
+| `tdd-cycle`         | feature                   | Test-Driven Development guide |
+| `create-adr`        | title, context            | Architecture Decision Record  |
+| `refactor-safely`   | target, goal              | Safe refactoring workflow     |
+| `debug-issue`       | symptom, expected         | Systematic debugging          |
+| `implement-feature` | prp_name                  | Full implementation workflow  |
+| `security-audit`    | scope                     | Security-focused audit        |
+
+### RAG Use Cases
+
+#### 1. Finding Related Code
+
+```bash
+# Instead of grepping through files
+> "Find all code related to payment processing"
+
+# Claude uses search_codebase tool:
+# - Returns semantically relevant code chunks
+# - Includes file paths and line numbers
+# - Sorted by relevance
+```
+
+#### 2. Understanding Past Decisions
+
+```bash
+> "Why did we choose this architecture?"
+
+# Claude uses recall_decision tool:
+# - Searches ADRs for architectural decisions
+# - Returns relevant sections with rationale
+# - Includes alternatives that were considered
+```
+
+#### 3. Getting Contextual Guidance
+
+```bash
+> "How should I implement this React component?"
+
+# Claude uses get_relevant_skill tool:
+# - Retrieves React best practices
+# - Returns only relevant sections
+# - Includes code examples
+```
+
+#### 4. Project Context Awareness
+
+```bash
+> "What's the current state of the project?"
+
+# Claude uses get_project_context tool:
+# - Returns project configuration
+# - Current workflow phase
+# - Active PRPs and ADRs
+# - Recent progress
+```
+
+### Re-indexing the Project
+
+After significant changes, re-index for fresh search results:
+
+```bash
+# From command line
+cd mcp-server && npm run index
+
+# Or ask Claude
+> "Re-index the project for RAG search"
+# Claude uses index_project tool
+```
+
+### RAG Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    User Query                               │
+│            "Find authentication logic"                      │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 MCP Server                                  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
+│  │   Tools     │  │  Resources  │  │   Prompts   │        │
+│  │ (8 tools)   │  │ (8+ URIs)   │  │(8 templates)│        │
+│  └──────┬──────┘  └─────────────┘  └─────────────┘        │
+│         │                                                   │
+│         ▼                                                   │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              RAG Engine (ChromaDB)                   │   │
+│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐             │   │
+│  │  │  Code   │  │  Docs   │  │ Skills  │             │   │
+│  │  │ Chunks  │  │ Chunks  │  │ Chunks  │             │   │
+│  │  └─────────┘  └─────────┘  └─────────┘             │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│              Relevant Results                               │
+│  • src/auth/login.ts (lines 45-120)                        │
+│  • src/middleware/auth.ts (lines 10-85)                    │
+│  • src/utils/jwt.ts (lines 1-50)                           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## Project Structure
 
 After installation, your project will have:
@@ -120,45 +315,32 @@ your-project/
 │   │   ├── project-init.md
 │   │   ├── project-plan.md
 │   │   ├── project-implement.md
-│   │   ├── project-frontend.md
-│   │   ├── project-tdd.md
-│   │   ├── project-test.md
-│   │   ├── project-review.md
-│   │   ├── project-refactor.md
-│   │   ├── project-docker.md
-│   │   ├── project-db.md
-│   │   ├── project-env.md
-│   │   ├── project-deploy.md
-│   │   ├── project-validate.md
-│   │   ├── project-fix-issue.md
-│   │   ├── project-status.md
-│   │   ├── project-explore.md
-│   │   └── primer.md
+│   │   └── ... (14 more)
 │   │
 │   ├── skills/              # 12 domain skills
 │   │   ├── react-development.md
 │   │   ├── vue-development.md
-│   │   ├── state-management.md
-│   │   ├── css-styling.md
-│   │   ├── api-design.md
-│   │   ├── graphql-api.md
-│   │   ├── database.md
-│   │   ├── python-development.md
-│   │   ├── docker-kubernetes.md
-│   │   ├── ci-cd.md
-│   │   ├── testing-tdd.md
-│   │   └── git-workflow.md
+│   │   └── ... (10 more)
 │   │
 │   ├── hooks/               # 6 automation hooks
 │   │   ├── block-dangerous.sh
-│   │   ├── validate-planning.sh
 │   │   ├── auto-format.sh
-│   │   ├── log-tool-usage.sh
-│   │   ├── session-tracker.sh
-│   │   └── save-context.sh
+│   │   └── ... (4 more)
 │   │
+│   ├── rag-db/              # ChromaDB vector storage (gitignored)
 │   ├── logs/                # Activity logs (gitignored)
 │   └── settings.json        # Tool permissions
+│
+├── mcp-server/              # MCP Server with RAG
+│   ├── src/
+│   │   ├── index.ts         # Server entry point
+│   │   ├── tools/           # MCP tools (8)
+│   │   ├── resources/       # MCP resources (8+)
+│   │   ├── prompts/         # MCP prompts (8)
+│   │   ├── rag/             # RAG engine (ChromaDB)
+│   │   └── utils/           # Utilities
+│   ├── package.json
+│   └── tsconfig.json
 │
 ├── docs/
 │   ├── planning/            # PRPs (Product Requirements Prompts)
@@ -166,6 +348,7 @@ your-project/
 │   └── progress/            # Progress tracking
 │
 ├── templates/               # Document templates
+├── .mcp.json.template       # MCP server configuration template
 ├── project-config.yaml      # Project configuration
 └── CLAUDE.md               # Claude instructions
 ```
@@ -544,6 +727,108 @@ Hooks automate quality enforcement and logging.
 #   - Real-time subscription hook
 ```
 
+### Use Case 11: RAG-Powered Codebase Exploration
+
+**Scenario**: Understanding a large unfamiliar codebase
+
+```bash
+# Get project overview
+> "What's the overall structure of this project?"
+# → Claude uses get_project_context + search_codebase
+
+# Find specific functionality
+> "Where is user authentication handled?"
+# → Claude uses search_codebase with semantic query
+# Returns: src/auth/*, src/middleware/auth.ts, etc.
+
+# Understand patterns
+> "What database access patterns are used here?"
+# → Claude searches for ORM usage, query patterns
+
+# Find related code
+> "Show me all API endpoints"
+# → Returns route definitions across the codebase
+```
+
+### Use Case 12: Context-Aware Development
+
+**Scenario**: Building on existing patterns
+
+```bash
+# Claude automatically retrieves relevant context
+> "Add a new API endpoint for user preferences"
+
+# RAG provides context:
+# - Existing endpoint patterns (from search_codebase)
+# - API design guidelines (from get_relevant_skill)
+# - Past decisions about API structure (from recall_decision)
+
+# Claude then generates code matching existing patterns:
+# - Same error handling
+# - Same validation approach
+# - Same response format
+```
+
+### Use Case 13: Decision Recall & Consistency
+
+**Scenario**: Maintaining architectural consistency
+
+```bash
+# Before making a decision
+> "We need to add caching. What caching approaches have we used?"
+
+# Claude uses recall_decision:
+# - Finds ADR-003: Caching Strategy
+# - Returns: "We use Redis for session cache, in-memory for API cache"
+# - Includes rationale and trade-offs
+
+# New implementation follows existing decisions
+> "Add caching to the product listing endpoint"
+# → Uses existing Redis client and patterns
+```
+
+### Use Case 14: Smart Documentation Search
+
+**Scenario**: Finding specific requirements or design decisions
+
+```bash
+# Search across all PRPs
+> "What are the requirements for the payment system?"
+
+# Claude uses search_documentation:
+# - Finds PRP-007: Payment Integration
+# - Returns relevant sections about payment requirements
+
+# Search ADRs for rationale
+> "Why did we choose Stripe over PayPal?"
+
+# Claude uses recall_decision:
+# - Finds ADR-012: Payment Provider Selection
+# - Returns decision rationale and alternatives
+```
+
+### Use Case 15: Skill-Based Guidance
+
+**Scenario**: Getting best practices for specific technologies
+
+```bash
+# React-specific guidance
+> "How should I handle form state in React?"
+
+# Claude uses get_relevant_skill(react-development):
+# - Returns form handling best practices
+# - Controlled vs uncontrolled components
+# - React Hook Form integration patterns
+
+# Testing guidance
+> "How do I test async functions in this project?"
+
+# Claude uses get_relevant_skill(testing-tdd):
+# - Returns async testing patterns
+# - Project-specific test utilities
+# - Mock and fixture patterns
+```
+
 ---
 
 ## Workflows
@@ -749,6 +1034,68 @@ gates:
 > "Build complete user management system"  # Too much at once
 ```
 
+### 7. Leverage RAG for Context
+
+```bash
+# Let Claude find relevant code semantically
+> "Find code similar to the user service"
+# → RAG returns related patterns
+
+# Don't manually point to every file
+# Bad:
+> "Look at src/services/user.ts, src/models/user.ts,
+   src/routes/user.ts and create a product service"
+
+# Good:
+> "Create a product service following the same patterns as user service"
+# → RAG finds and applies existing patterns
+```
+
+### 8. Keep RAG Index Fresh
+
+```bash
+# Re-index after major changes
+> "Re-index the project"
+
+# Or from command line
+cd mcp-server && npm run index
+
+# Good times to re-index:
+# - After adding new modules
+# - After significant refactoring
+# - After merging major PRs
+# - When search results seem stale
+```
+
+### 9. Use Decision Recall
+
+```bash
+# Before making architectural decisions
+> "What decisions have we made about authentication?"
+# → Returns relevant ADRs
+
+# This ensures:
+# - Consistency with past decisions
+# - Understanding of trade-offs already considered
+# - Avoiding repeated discussions
+```
+
+### 10. Document for RAG
+
+```bash
+# Write PRPs and ADRs that RAG can find
+# Include keywords and clear sections
+
+# Good ADR structure:
+# - Clear title (searchable)
+# - Context (what problem)
+# - Decision (what we chose)
+# - Rationale (why)
+# - Alternatives (what else considered)
+
+# Claude can then recall these decisions later
+```
+
 ---
 
 ## Troubleshooting
@@ -783,6 +1130,70 @@ cat .claude/agents/developer.md
 
 # Try explicit delegation
 > "Use the developer agent to implement this API"
+```
+
+### MCP/RAG Issues
+
+**MCP server not connecting**
+
+```bash
+# Verify the server is built
+cd mcp-server
+npm run build
+
+# Check .mcp.json exists and has correct paths
+cat .mcp.json
+
+# Test the server directly
+node dist/index.js
+```
+
+**RAG search returns no results**
+
+```bash
+# Check if project is indexed
+> "Get RAG stats"
+
+# Re-index the project
+cd mcp-server && npm run index
+
+# Verify index was created
+ls -la ../.claude/rag-db/
+```
+
+**RAG search returns irrelevant results**
+
+```bash
+# Try more specific queries
+# Instead of: "find auth"
+# Use: "user authentication login handler"
+
+# Re-index with fresh data
+cd mcp-server && npm run index
+```
+
+**ChromaDB connection issues**
+
+```bash
+# Check if rag-db directory is writable
+ls -la .claude/rag-db/
+
+# Clear and re-index
+rm -rf .claude/rag-db/
+cd mcp-server && npm run index
+```
+
+**MCP tools not appearing in Claude**
+
+```bash
+# Verify .mcp.json configuration
+cat .mcp.json
+
+# Ensure claude-orchestrator is not disabled
+# Check: "disabled": false
+
+# Restart Claude Code
+# The MCP server connects on startup
 ```
 
 ---
