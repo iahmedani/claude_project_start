@@ -70,18 +70,23 @@ fi
 # Copy and set up MCP server
 if [ -d "$SCRIPT_DIR/mcp-server" ]; then
     echo -e "${GREEN}Setting up MCP server with RAG...${NC}"
-    cp -r "$SCRIPT_DIR/mcp-server" "$TARGET_DIR/mcp-server"
+
+    # Copy only source files (exclude node_modules and dist)
+    mkdir -p "$TARGET_DIR/mcp-server"
+    cp "$SCRIPT_DIR/mcp-server/package.json" "$TARGET_DIR/mcp-server/"
+    cp "$SCRIPT_DIR/mcp-server/tsconfig.json" "$TARGET_DIR/mcp-server/"
+    cp -r "$SCRIPT_DIR/mcp-server/src" "$TARGET_DIR/mcp-server/"
+    [ -f "$SCRIPT_DIR/mcp-server/README.md" ] && cp "$SCRIPT_DIR/mcp-server/README.md" "$TARGET_DIR/mcp-server/"
 
     # Install dependencies and build
     if command -v npm &> /dev/null; then
         echo -e "${CYAN}  Installing MCP server dependencies...${NC}"
-        (cd "$TARGET_DIR/mcp-server" && npm install --silent 2>/dev/null)
-        echo -e "${CYAN}  Building MCP server...${NC}"
-        (cd "$TARGET_DIR/mcp-server" && npm run build --silent 2>/dev/null)
-
-        # Create working .mcp.json with correct paths
-        echo -e "${CYAN}  Configuring MCP server...${NC}"
-        cat > "$TARGET_DIR/.mcp.json" << MCPEOF
+        if (cd "$TARGET_DIR/mcp-server" && npm install 2>&1 | tail -5); then
+            echo -e "${CYAN}  Building MCP server...${NC}"
+            if (cd "$TARGET_DIR/mcp-server" && npm run build 2>&1); then
+                # Create working .mcp.json with correct paths
+                echo -e "${CYAN}  Configuring MCP server...${NC}"
+                cat > "$TARGET_DIR/.mcp.json" << MCPEOF
 {
   "mcpServers": {
     "claude-orchestrator": {
@@ -96,14 +101,22 @@ if [ -d "$SCRIPT_DIR/mcp-server" ]; then
 }
 MCPEOF
 
-        # Create RAG database directory
-        mkdir -p "$TARGET_DIR/.claude/rag-db"
+                # Create RAG database directory
+                mkdir -p "$TARGET_DIR/.claude/rag-db"
 
-        # Index the project
-        echo -e "${CYAN}  Indexing project for RAG search...${NC}"
-        (cd "$TARGET_DIR/mcp-server" && npm run index --silent 2>/dev/null) || true
+                # Index the project
+                echo -e "${CYAN}  Indexing project for RAG search...${NC}"
+                (cd "$TARGET_DIR/mcp-server" && npm run index 2>&1) || true
 
-        echo -e "${GREEN}  MCP server ready!${NC}"
+                echo -e "${GREEN}  MCP server ready!${NC}"
+            else
+                echo -e "${YELLOW}  Build failed - MCP server requires manual setup${NC}"
+                cp "$SCRIPT_DIR/.mcp.json.template" "$TARGET_DIR/.mcp.json.template"
+            fi
+        else
+            echo -e "${YELLOW}  npm install failed - MCP server requires manual setup${NC}"
+            cp "$SCRIPT_DIR/.mcp.json.template" "$TARGET_DIR/.mcp.json.template"
+        fi
     else
         echo -e "${YELLOW}  npm not found - MCP server requires manual setup${NC}"
         # Copy template for manual setup
