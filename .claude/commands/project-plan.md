@@ -21,10 +21,21 @@ Before starting:
 
 ### Step 1: Gather Context
 - Read CLAUDE.md for project context
-- Read project-config.yaml for tech stack
+- **CRITICAL: Read project-config.yaml and extract ALL relevant settings:**
+  - `stack.frontend.*` - framework, meta_framework, styling, state_management
+  - `stack.backend.*` - language, framework
+  - `stack.database.*` - primary, orm
+  - `testing.frontend.*` - unit, component, e2e frameworks
+  - `testing.backend.*` - framework, coverage_threshold
+  - `style.*` - linter, formatter, type_checker
+  - `versions.*` - node, python, typescript versions
+  - `package_managers.*` - npm/yarn/pnpm, pip/uv/poetry
 - Check `.claude/workflow/STATE.md` for current phase
 - Search codebase for related patterns
 - Check `docs/planning/` for related PRPs
+
+**You MUST use the exact tools/frameworks from project-config.yaml in your PRP.**
+Do NOT substitute or omit configured values.
 
 ### Step 2: Clarify Requirements
 Ask the user 2-3 focused questions:
@@ -65,6 +76,22 @@ sed -i 's/- \[ \] PRP created/- [x] PRP created/' .claude/workflow/STATE.md
 ## Overview
 [2-3 sentence description]
 
+## Tech Stack (from project-config.yaml)
+
+| Category | Tool | Version |
+|----------|------|---------|
+| Framework | [from stack.frontend.framework] | [from versions.*] |
+| Meta Framework | [from stack.frontend.meta_framework] | |
+| Styling | [from stack.frontend.styling] | |
+| State | [from stack.frontend.state_management] | |
+| Unit Testing | [from testing.frontend.unit] | |
+| Component Testing | [from testing.frontend.component] | |
+| E2E Testing | [from testing.frontend.e2e] | |
+| Linter | [from style.node.linter] | |
+| Formatter | [from style.node.formatter] | |
+| Type Checker | [from style.node.type_checker] | |
+| Package Manager | [from package_managers.node] | |
+
 ## Requirements
 
 ### Must Have
@@ -100,8 +127,11 @@ sed -i 's/- \[ \] PRP created/- [x] PRP created/' .claude/workflow/STATE.md
 - [ ] Step 1: [description]
 - [ ] Step 2: [description]
 
-### Phase 3: Polish & Testing
-- [ ] Write unit tests
+### Phase 3: Testing Setup (per project-config.yaml)
+- [ ] Configure unit testing with [testing.frontend.unit or testing.backend.framework]
+- [ ] Configure component testing with [testing.frontend.component]
+- [ ] Configure E2E testing with [testing.frontend.e2e]
+- [ ] Write unit tests (target: [testing.backend.coverage_threshold]% coverage)
 - [ ] Write integration tests
 - [ ] Update documentation
 
@@ -111,15 +141,37 @@ sed -i 's/- \[ \] PRP created/- [x] PRP created/' .claude/workflow/STATE.md
 - [ ] AC3: [Criterion]
 
 ## Validation Gates
-All must pass before completion:
-- [ ] Type checking passes
-- [ ] Linting passes
-- [ ] All tests pass
-- [ ] Coverage >= threshold
+All must pass before completion (use tools from project-config.yaml):
+- [ ] Type checking passes (`[style.*.type_checker] --noEmit`)
+- [ ] Linting passes (`[style.*.linter]`)
+- [ ] Formatting check (`[style.*.formatter] --check`)
+- [ ] Unit tests pass (`[testing.*.framework]`)
+- [ ] Coverage >= [testing.backend.coverage_threshold]%
+- [ ] E2E tests pass (if applicable) (`[testing.frontend.e2e]`)
+- [ ] Build succeeds
 - [ ] Documentation updated
 
 ## Dependencies
-- [List any dependencies]
+
+**IMPORTANT:** Include all tools from project-config.yaml in dependencies.
+
+### Production Dependencies
+```json
+{
+  // Framework dependencies from stack.*
+  // State management from stack.frontend.state_management
+}
+```
+
+### Dev Dependencies
+```json
+{
+  // Testing: [testing.frontend.unit], [testing.frontend.component], [testing.frontend.e2e]
+  // Linting: [style.node.linter]
+  // Formatting: [style.node.formatter]
+  // Types: typescript, @types/*
+}
+```
 
 ## Risks & Mitigations
 | Risk | Impact | Mitigation |
