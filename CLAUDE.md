@@ -332,6 +332,15 @@ cd mcp-server && npm run index
 
 ## Workflow Rules
 
+### IMPORTANT - Planning Location
+
+**Use `/project-plan` for feature planning** - NOT Claude's built-in plan mode.
+
+- `/project-plan feature-name` → Saves to `docs/planning/PRP-feature-name.md` (project-local)
+- Claude's built-in plan mode → Saves to `~/.claude/plans/` (global, not project-specific)
+
+Always use the `/project-plan` command to keep plans in your project repository.
+
 ### IMPORTANT - Always Follow These Steps:
 
 1. **Before ANY implementation**: Run `/project-plan` or ensure a plan exists
