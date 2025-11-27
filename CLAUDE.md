@@ -236,6 +236,15 @@ your-project/
 
 The orchestrator includes an MCP server with RAG capabilities for intelligent context management.
 
+### What is RAG?
+
+RAG (Retrieval-Augmented Generation) allows Claude to **semantically search** your codebase instead of re-reading entire files:
+
+- **Efficient context** - Only relevant code chunks are loaded
+- **Semantic search** - Find code by intent, not just keywords
+- **Persistent memory** - Past decisions and patterns are indexed
+- **Cross-session continuity** - Context survives between sessions
+
 ### Setup
 
 ```bash
@@ -243,39 +252,83 @@ cd mcp-server
 npm install
 npm run build
 npm run index  # Index project for RAG search
+
+# Configure Claude Code
+cd ..
+cp .mcp.json.template .mcp.json
 ```
 
 ### MCP Tools
 
-| Tool                    | Description                        |
-| ----------------------- | ---------------------------------- |
-| `get_project_context`   | Get config, state, PRPs, ADRs      |
-| `search_codebase`       | Semantic search across source code |
-| `search_documentation`  | Search PRPs, ADRs, and guides      |
-| `get_relevant_skill`    | Retrieve relevant skill sections   |
-| `recall_decision`       | Find past architectural decisions  |
-| `update_workflow_state` | Update workflow phase/task         |
-| `index_project`         | Re-index project for RAG           |
+| Tool                    | Description                        | Example Use                       |
+| ----------------------- | ---------------------------------- | --------------------------------- |
+| `get_project_context`   | Get config, state, PRPs, ADRs      | "What's the project status?"      |
+| `search_codebase`       | Semantic search across source code | "Find authentication logic"       |
+| `search_documentation`  | Search PRPs, ADRs, and guides      | "What was decided about caching?" |
+| `get_relevant_skill`    | Retrieve relevant skill sections   | "How do I use React hooks?"       |
+| `recall_decision`       | Find past architectural decisions  | "Why did we choose PostgreSQL?"   |
+| `update_workflow_state` | Update workflow phase/task         | Automatic during workflows        |
+| `index_project`         | Re-index project for RAG           | After major changes               |
+| `get_rag_stats`         | Get indexing statistics            | Verify indexing status            |
 
 ### MCP Resources
 
-| URI                | Description           |
-| ------------------ | --------------------- |
-| `project://config` | Project configuration |
-| `project://state`  | Workflow state        |
-| `project://prps`   | List of PRPs          |
-| `project://adrs`   | List of ADRs          |
-| `project://skills` | Available skills      |
+| URI                    | Description                  |
+| ---------------------- | ---------------------------- |
+| `project://config`     | Project configuration (YAML) |
+| `project://state`      | Current workflow state       |
+| `project://prps`       | List of all PRPs             |
+| `project://adrs`       | List of all ADRs             |
+| `project://agents`     | Available agents             |
+| `project://skills`     | Available skills             |
+| `project://commands`   | Slash commands               |
+| `project://prp/{name}` | Specific PRP content         |
+| `project://adr/{name}` | Specific ADR content         |
 
 ### MCP Prompts
 
-| Prompt           | Description                      |
-| ---------------- | -------------------------------- |
-| `create-prp`     | Generate PRP for new feature     |
-| `code-review`    | Comprehensive code review        |
-| `tdd-cycle`      | Test-Driven Development workflow |
-| `create-adr`     | Architecture Decision Record     |
-| `security-audit` | Security-focused code audit      |
+| Prompt              | Arguments                 | Description                   |
+| ------------------- | ------------------------- | ----------------------------- |
+| `create-prp`        | feature_name, description | Generate a comprehensive PRP  |
+| `code-review`       | files, focus              | Systematic code review        |
+| `tdd-cycle`         | feature                   | Test-Driven Development guide |
+| `create-adr`        | title, context            | Architecture Decision Record  |
+| `refactor-safely`   | target, goal              | Safe refactoring workflow     |
+| `debug-issue`       | symptom, expected         | Systematic debugging          |
+| `implement-feature` | prp_name                  | Full implementation workflow  |
+| `security-audit`    | scope                     | Security-focused audit        |
+
+### RAG Usage Examples
+
+```bash
+# Semantic code search
+> "Find all code related to payment processing"
+# → Returns relevant code chunks with file paths and line numbers
+
+# Understanding past decisions
+> "Why did we choose this architecture?"
+# → Searches ADRs for architectural decisions and rationale
+
+# Getting contextual guidance
+> "How should I implement this React component?"
+# → Retrieves relevant sections from react-development skill
+
+# Project context awareness
+> "What's the current state of the project?"
+# → Returns config, workflow phase, active PRPs/ADRs
+```
+
+### Re-indexing
+
+After significant changes, re-index for fresh search results:
+
+```bash
+# From command line
+cd mcp-server && npm run index
+
+# Or ask Claude
+> "Re-index the project for RAG search"
+```
 
 ## Workflow Rules
 
