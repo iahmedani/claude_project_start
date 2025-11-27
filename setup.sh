@@ -47,6 +47,10 @@ fi
 echo -e "${GREEN}Copying .claude directory...${NC}"
 cp -r "$SCRIPT_DIR/.claude" "$TARGET_DIR/.claude"
 
+# Clear any logs from source repo (start fresh)
+rm -f "$TARGET_DIR/.claude/logs/"*.log 2>/dev/null || true
+rm -f "$TARGET_DIR/.claude/logs/context-snapshots/"*.md 2>/dev/null || true
+
 # Copy CLAUDE.md
 echo -e "${GREEN}Copying CLAUDE.md...${NC}"
 cp "$SCRIPT_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
@@ -124,13 +128,27 @@ MCPEOF
     fi
 fi
 
-# Create logs directory
+# Ensure logs directory exists
 mkdir -p "$TARGET_DIR/.claude/logs"
 mkdir -p "$TARGET_DIR/.claude/logs/context-snapshots"
 
-# Make hooks executable
-echo -e "${GREEN}Making hooks executable...${NC}"
-chmod +x "$TARGET_DIR/.claude/hooks/"*.sh 2>/dev/null || true
+# Make hooks executable and verify
+echo -e "${GREEN}Setting up hooks...${NC}"
+if [ -d "$TARGET_DIR/.claude/hooks" ]; then
+    for hook in "$TARGET_DIR/.claude/hooks/"*.sh; do
+        if [ -f "$hook" ]; then
+            chmod +x "$hook"
+            # Verify the hook is valid
+            if head -1 "$hook" | grep -q "^#!/bin/bash"; then
+                echo -e "  ${GREEN}[OK]${NC} $(basename "$hook")"
+            else
+                echo -e "  ${YELLOW}[!]${NC} $(basename "$hook") - missing shebang"
+            fi
+        fi
+    done
+else
+    echo -e "${YELLOW}  No hooks directory found${NC}"
+fi
 
 # Create initial progress tracking file
 cat > "$TARGET_DIR/docs/progress/PROGRESS.md" << 'EOF'
