@@ -46,22 +46,52 @@ Fixes #456
 
 ## Branch Strategy
 
+### GitHub Flow (Recommended)
+
 ```
-main
-├── develop (optional)
-│   ├── feature/user-authentication
-│   ├── feature/payment-integration
-│   ├── bugfix/login-error
-│   └── hotfix/security-patch
+main (protected) ←── PR ←── feature/your-feature
+     ↓                           ↑
+  deploy                   development
 ```
+
+### Branch Types
+
+| Prefix       | Purpose          | Example                    |
+| ------------ | ---------------- | -------------------------- |
+| `feature/*`  | New features     | `feature/user-auth`        |
+| `fix/*`      | Bug fixes        | `fix/login-error`          |
+| `docs/*`     | Documentation    | `docs/api-readme`          |
+| `refactor/*` | Code refactoring | `refactor/extract-service` |
+| `test/*`     | Test additions   | `test/user-validation`     |
+| `hotfix/*`   | Critical fixes   | `hotfix/security-patch`    |
+| `release/*`  | Release prep     | `release/v1.2.0`           |
 
 ### Branch Naming
 
 ```bash
 feature/ABC-123-short-description
-bugfix/ABC-456-fix-issue
+fix/ABC-456-fix-login-issue
 hotfix/critical-security-fix
 release/v1.2.0
+```
+
+### Daily Workflow
+
+```bash
+# 1. Start from updated main
+git checkout main && git pull origin main
+
+# 2. Create feature branch
+git checkout -b feature/new-feature
+
+# 3. Make changes + tests
+# ... work ...
+
+# 4. Push and create PR
+git push -u origin feature/new-feature
+gh pr create --title "feat: Add feature" --body "..."
+
+# 5. After review → Merge to main
 ```
 
 ## Common Git Operations

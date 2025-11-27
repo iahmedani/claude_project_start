@@ -2,6 +2,44 @@
 
 > **Related**: `api-design` (REST endpoints), `graphql-api` (GraphQL resolvers), `python-development` (SQLAlchemy)
 
+## Naming Conventions
+
+### Entity-Specific Primary Keys
+
+Use entity-specific primary keys for clarity:
+
+```sql
+-- Primary keys: {entity}_id
+sessions.session_id UUID PRIMARY KEY
+leads.lead_id UUID PRIMARY KEY
+users.user_id UUID PRIMARY KEY
+
+-- Foreign keys: {referenced_entity}_id
+session_id REFERENCES sessions(session_id)
+user_id REFERENCES users(user_id)
+```
+
+### Field Naming Standards
+
+| Type             | Pattern             | Examples                                 |
+| ---------------- | ------------------- | ---------------------------------------- |
+| **Primary Keys** | `{entity}_id`       | `user_id`, `order_id`                    |
+| **Foreign Keys** | `{referenced}_id`   | `user_id`, `session_id`                  |
+| **Timestamps**   | `{action}_at`       | `created_at`, `updated_at`, `expires_at` |
+| **Booleans**     | `is_{state}`        | `is_active`, `is_verified`               |
+| **Counts**       | `{entity}_count`    | `message_count`, `order_count`           |
+| **Durations**    | `{property}_{unit}` | `duration_seconds`, `timeout_minutes`    |
+
+### Table Naming
+
+```sql
+-- Use plural snake_case
+users, orders, order_items, user_sessions
+
+-- Junction tables: {table1}_{table2}
+user_roles, product_categories
+```
+
 ## ORM Patterns (SQLAlchemy 2.0)
 
 ### Model Definition

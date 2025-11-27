@@ -109,11 +109,78 @@ pytest tests/test_specific.py -v
 pytest -k "test_user"
 ```
 
+## JavaScript Testing with Vitest
+
+### Basic Test Structure
+
+```typescript
+import { describe, it, expect, vi } from "vitest";
+import { calculateDiscount } from "./pricing";
+
+describe("calculateDiscount", () => {
+  it("should apply percentage discount correctly", () => {
+    const result = calculateDiscount(100, 20);
+    expect(result).toBe(80);
+  });
+
+  it("should throw for invalid discount percentage", () => {
+    expect(() => calculateDiscount(100, -10)).toThrow("Invalid discount");
+  });
+});
+```
+
+### Mocking
+
+```typescript
+import { vi } from "vitest";
+
+// Mock module
+vi.mock("./api", () => ({
+  fetchUser: vi.fn().mockResolvedValue({ id: 1, name: "Test" }),
+}));
+
+// Mock function
+const mockFn = vi.fn().mockReturnValue("mocked");
+```
+
+### React Testing Library
+
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Button } from './Button';
+
+describe('Button', () => {
+  it('should call onClick when clicked', () => {
+    const handleClick = vi.fn();
+    render(<Button onClick={handleClick}>Click me</Button>);
+
+    fireEvent.click(screen.getByText('Click me'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+## Test Organization
+
+### File Structure
+
+```
+src/
+├── services/
+│   ├── user.ts
+│   └── user.test.ts        # Co-located tests
+├── components/
+│   ├── Button.tsx
+│   └── Button.test.tsx
+└── __tests__/              # Integration tests
+    └── auth.integration.test.ts
+```
+
 ## Coverage Requirements
 
 - Minimum: 80% coverage
 - Critical paths: 95% coverage
-- Exclude: `__init__.py`, migrations, config
+- Exclude: `__init__.py`, migrations, config, `*.d.ts`
 
 ## Best Practices
 
@@ -124,3 +191,4 @@ pytest -k "test_user"
 5. **Use fixtures** for setup, not copy-paste
 6. **Mock external services** - don't hit real APIs
 7. **Keep tests fast** - slow tests don't get run
+8. **Co-locate tests** - tests live next to the code they test

@@ -12,6 +12,43 @@ This orchestrator transforms Claude Code into a **full-stack development team** 
 - **Hooks** for automation and quality gates
 - **12 Skills** for domain-specific knowledge (React, Vue, GraphQL, Docker, etc.)
 
+## Core Development Philosophy
+
+### KISS (Keep It Simple, Stupid)
+
+Simplicity should be a key goal in design. Choose straightforward solutions over complex ones. Simple solutions are easier to understand, maintain, and debug.
+
+### YAGNI (You Aren't Gonna Need It)
+
+Implement features only when needed, not when you anticipate they might be useful. Avoid building functionality on speculation.
+
+### Design Principles
+
+- **Single Responsibility**: Each function, class, and module should have one clear purpose
+- **Open/Closed**: Software entities should be open for extension but closed for modification
+- **Dependency Inversion**: High-level modules should depend on abstractions, not implementations
+- **Fail Fast**: Check for potential errors early and raise exceptions immediately
+
+### Code Structure Limits
+
+| Element         | Max Lines | Rationale                                 |
+| --------------- | --------- | ----------------------------------------- |
+| **Files**       | 500       | Split into modules when approaching limit |
+| **Functions**   | 50        | Single, clear responsibility              |
+| **Classes**     | 100       | Represent one concept or entity           |
+| **Line Length** | 100 chars | Readability (configurable in linters)     |
+
+### Search Command Requirements
+
+Always use `rg` (ripgrep) instead of `grep` and `find`:
+
+```bash
+# Use rg for searching
+rg "pattern"                    # Instead of: grep -r "pattern" .
+rg --files -g "*.py"           # Instead of: find . -name "*.py"
+rg "function" --type ts        # Search in TypeScript files
+```
+
 ## Project Structure
 
 ```
