@@ -107,7 +107,9 @@ export async function handleResourceRead(
 ): Promise<{
   contents: Array<{ uri: string; mimeType: string; text: string }>;
 }> {
-  const [protocol, resource] = uri.split("://");
+  const parts = uri.split("://");
+  const protocol = parts[0];
+  const resource = parts[1] || "";
 
   if (protocol !== "project") {
     return {

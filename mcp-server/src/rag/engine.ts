@@ -8,13 +8,13 @@
  * - Past decisions and patterns
  */
 
-import { ChromaClient, Collection } from "chromadb";
+import { ChromaClient, Collection, Metadata } from "chromadb";
 import { readFile } from "fs/promises";
 import { existsSync } from "fs";
 import { join, relative, extname } from "path";
 import { glob } from "glob";
 import matter from "gray-matter";
-import ignore from "ignore";
+import ignoreLib from "ignore";
 
 export interface RAGConfig {
   projectPath: string;
@@ -38,14 +38,7 @@ export interface IndexStats {
 interface DocumentChunk {
   id: string;
   content: string;
-  metadata: {
-    source: string;
-    type: string;
-    path: string;
-    chunk_index: number;
-    total_chunks: number;
-    [key: string]: unknown;
-  };
+  metadata: Metadata;
 }
 
 export class RAGEngine {
@@ -207,7 +200,7 @@ export class RAGEngine {
   private async indexCodebase(): Promise<number> {
     if (!this.codeCollection) return 0;
 
-    const ig = ignore();
+    const ig = ignoreLib.default();
     const gitignorePath = join(this.config.projectPath, ".gitignore");
 
     if (existsSync(gitignorePath)) {
@@ -422,7 +415,7 @@ export class RAGEngine {
           end_line: Math.min(i + chunkSize, lines.length),
           chunk_index: chunkIndex,
           total_chunks: totalChunks,
-        },
+        } as Metadata,
       });
     }
 
@@ -436,7 +429,7 @@ export class RAGEngine {
     content: string,
     filePath: string,
     docType: string,
-    extraMetadata: Record<string, unknown> = {},
+    extraMetadata: Record<string, string | number | boolean> = {},
   ): DocumentChunk[] {
     const chunks: DocumentChunk[] = [];
 
@@ -462,7 +455,7 @@ export class RAGEngine {
               chunk_index: chunkIndex,
               total_chunks: 0, // Will be updated
               ...extraMetadata,
-            },
+            } as Metadata,
           });
           chunkIndex++;
         }
@@ -486,14 +479,16 @@ export class RAGEngine {
           chunk_index: chunkIndex,
           total_chunks: 0,
           ...extraMetadata,
-        },
+        } as Metadata,
       });
     }
 
     // Update total chunks
     const total = chunks.length;
     chunks.forEach((chunk) => {
-      chunk.metadata.total_chunks = total;
+      (
+        chunk.metadata as Record<string, string | number | boolean>
+      ).total_chunks = total;
     });
 
     return chunks;
