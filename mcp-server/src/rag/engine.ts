@@ -6,12 +6,14 @@
  * - Documentation (PRPs, ADRs)
  * - Skills and knowledge base
  * - Past decisions and patterns
+ *
+ * Uses a simple file-based storage with TF-IDF-like keyword matching
+ * that works without external dependencies or servers.
  */
 
-import { ChromaClient, Collection, Metadata } from "chromadb";
-import { readFile } from "fs/promises";
+import { readFile, writeFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
-import { join, relative, extname } from "path";
+import { join, relative, extname, dirname } from "path";
 import { glob } from "glob";
 import matter from "gray-matter";
 import ignoreLib from "ignore";
@@ -38,45 +40,62 @@ export interface IndexStats {
 interface DocumentChunk {
   id: string;
   content: string;
-  metadata: Metadata;
+  metadata: Record<string, unknown>;
+  tokens: string[];
+}
+
+interface StoredIndex {
+  version: number;
+  lastIndexed: string;
+  documents: {
+    code: DocumentChunk[];
+    docs: DocumentChunk[];
+    skills: DocumentChunk[];
+  };
 }
 
 export class RAGEngine {
-  private client: ChromaClient | null = null;
-  private codeCollection: Collection | null = null;
-  private docsCollection: Collection | null = null;
-  private skillsCollection: Collection | null = null;
   private config: RAGConfig;
   private initialized = false;
+  private indexPath: string;
+  private index: StoredIndex = {
+    version: 1,
+    lastIndexed: "",
+    documents: {
+      code: [],
+      docs: [],
+      skills: [],
+    },
+  };
 
   constructor(config: RAGConfig) {
     this.config = config;
+    this.indexPath = join(config.chromaPath, "index.json");
   }
 
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
-    this.client = new ChromaClient({
-      path: this.config.chromaPath,
-    });
+    // Ensure the storage directory exists
+    const dir = dirname(this.indexPath);
+    if (!existsSync(dir)) {
+      await mkdir(dir, { recursive: true });
+    }
 
-    // Create collections for different content types
-    const safeName = this.config.collectionName.replace(/[^a-zA-Z0-9_-]/g, "_");
-
-    this.codeCollection = await this.client.getOrCreateCollection({
-      name: `${safeName}_code`,
-      metadata: { description: "Project source code" },
-    });
-
-    this.docsCollection = await this.client.getOrCreateCollection({
-      name: `${safeName}_docs`,
-      metadata: { description: "Project documentation (PRPs, ADRs)" },
-    });
-
-    this.skillsCollection = await this.client.getOrCreateCollection({
-      name: `${safeName}_skills`,
-      metadata: { description: "Skills and knowledge base" },
-    });
+    // Load existing index if available
+    if (existsSync(this.indexPath)) {
+      try {
+        const data = await readFile(this.indexPath, "utf-8");
+        this.index = JSON.parse(data);
+      } catch {
+        // Start fresh if index is corrupted
+        this.index = {
+          version: 1,
+          lastIndexed: "",
+          documents: { code: [], docs: [], skills: [] },
+        };
+      }
+    }
 
     this.initialized = true;
   }
@@ -85,6 +104,49 @@ export class RAGEngine {
     if (!this.initialized) {
       throw new Error("RAG engine not initialized. Call initialize() first.");
     }
+  }
+
+  private async saveIndex(): Promise<void> {
+    await writeFile(this.indexPath, JSON.stringify(this.index, null, 2));
+  }
+
+  /**
+   * Tokenize text for search matching
+   */
+  private tokenize(text: string): string[] {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, " ")
+      .split(/\s+/)
+      .filter((token) => token.length > 2);
+  }
+
+  /**
+   * Calculate relevance score between query and document
+   * Uses TF-IDF-like scoring
+   */
+  private calculateScore(queryTokens: string[], docTokens: string[]): number {
+    if (docTokens.length === 0) return Infinity;
+
+    const docTokenSet = new Set(docTokens);
+    let matches = 0;
+    let weightedMatches = 0;
+
+    for (const queryToken of queryTokens) {
+      if (docTokenSet.has(queryToken)) {
+        matches++;
+        // Weight by inverse document frequency (rare tokens score higher)
+        const tf = docTokens.filter((t) => t === queryToken).length;
+        weightedMatches += tf / docTokens.length;
+      }
+    }
+
+    if (matches === 0) return Infinity;
+
+    // Lower score is better (like distance)
+    // Combine coverage (what % of query matched) with TF-IDF
+    const coverage = matches / queryTokens.length;
+    return 1 - coverage * 0.7 - weightedMatches * 0.3;
   }
 
   /**
@@ -102,41 +164,29 @@ export class RAGEngine {
 
     const types = options.types || ["code", "docs", "skills"];
     const limit = options.limit || 10;
+    const queryTokens = this.tokenize(query);
+
+    if (queryTokens.length === 0) {
+      return [];
+    }
+
     const results: SearchResult[] = [];
 
-    const searchCollection = async (
-      collection: Collection | null,
-      type: string,
-    ) => {
-      if (!collection || !types.includes(type as "code" | "docs" | "skills"))
-        return;
-
-      const queryResult = await collection.query({
-        queryTexts: [query],
-        nResults: limit,
-        where: options.filter as Record<string, string> | undefined,
-      });
-
-      if (queryResult.ids[0]) {
-        queryResult.ids[0].forEach((id, idx) => {
+    for (const type of types) {
+      const docs = this.index.documents[type] || [];
+      for (const doc of docs) {
+        const score = this.calculateScore(queryTokens, doc.tokens);
+        if (score < 1) {
+          // Only include if there's at least some match
           results.push({
-            id,
-            content: queryResult.documents[0]?.[idx] || "",
-            metadata: {
-              type,
-              ...(queryResult.metadatas[0]?.[idx] || {}),
-            },
-            distance: queryResult.distances?.[0]?.[idx] || 0,
+            id: doc.id,
+            content: doc.content,
+            metadata: { type, ...doc.metadata },
+            distance: score,
           });
-        });
+        }
       }
-    };
-
-    await Promise.all([
-      searchCollection(this.codeCollection, "code"),
-      searchCollection(this.docsCollection, "docs"),
-      searchCollection(this.skillsCollection, "skills"),
-    ]);
+    }
 
     // Sort by distance (lower is better)
     results.sort((a, b) => a.distance - b.distance);
@@ -170,10 +220,14 @@ export class RAGEngine {
   async indexProject(): Promise<IndexStats> {
     this.ensureInitialized();
 
+    // Reset index
+    this.index.documents = { code: [], docs: [], skills: [] };
+    this.index.lastIndexed = new Date().toISOString();
+
     const stats: IndexStats = {
       totalDocuments: 0,
       collections: [],
-      lastIndexed: new Date().toISOString(),
+      lastIndexed: this.index.lastIndexed,
     };
 
     // Index codebase
@@ -191,6 +245,9 @@ export class RAGEngine {
     stats.totalDocuments += skillsCount;
     if (skillsCount > 0) stats.collections.push("skills");
 
+    // Persist the index
+    await this.saveIndex();
+
     return stats;
   }
 
@@ -198,8 +255,6 @@ export class RAGEngine {
    * Index source code files
    */
   private async indexCodebase(): Promise<number> {
-    if (!this.codeCollection) return 0;
-
     const ig = ignoreLib.default();
     const gitignorePath = join(this.config.projectPath, ".gitignore");
 
@@ -247,8 +302,6 @@ export class RAGEngine {
       ignore: ["node_modules/**", ".git/**", "dist/**", "build/**"],
     });
 
-    const chunks: DocumentChunk[] = [];
-
     for (const file of files) {
       const relativePath = relative(
         this.config.projectPath,
@@ -265,43 +318,24 @@ export class RAGEngine {
 
       // Chunk the file
       const fileChunks = this.chunkCode(content, file);
-      chunks.push(...fileChunks);
+      this.index.documents.code.push(...fileChunks);
     }
 
-    if (chunks.length === 0) return 0;
-
-    // Clear existing and add new
-    await this.codeCollection.delete({ where: {} });
-
-    // Batch add (ChromaDB has limits)
-    const batchSize = 100;
-    for (let i = 0; i < chunks.length; i += batchSize) {
-      const batch = chunks.slice(i, i + batchSize);
-      await this.codeCollection.add({
-        ids: batch.map((c) => c.id),
-        documents: batch.map((c) => c.content),
-        metadatas: batch.map((c) => c.metadata),
-      });
-    }
-
-    return chunks.length;
+    return this.index.documents.code.length;
   }
 
   /**
    * Index documentation files (PRPs, ADRs, etc.)
    */
   private async indexDocumentation(): Promise<number> {
-    if (!this.docsCollection) return 0;
-
     const docsPath = join(this.config.projectPath, "docs");
     const claudeMdPath = join(this.config.projectPath, "CLAUDE.md");
-
-    const chunks: DocumentChunk[] = [];
 
     // Index CLAUDE.md
     if (existsSync(claudeMdPath)) {
       const content = await readFile(claudeMdPath, "utf-8");
-      chunks.push(...this.chunkMarkdown(content, "CLAUDE.md", "guide"));
+      const chunks = this.chunkMarkdown(content, "CLAUDE.md", "guide");
+      this.index.documents.docs.push(...chunks);
     }
 
     // Index docs folder
@@ -316,39 +350,23 @@ export class RAGEngine {
           : file.includes("ADR-")
             ? "adr"
             : "doc";
-        chunks.push(...this.chunkMarkdown(content, file, type));
+        const chunks = this.chunkMarkdown(content, file, type);
+        this.index.documents.docs.push(...chunks);
       }
     }
 
-    if (chunks.length === 0) return 0;
-
-    await this.docsCollection.delete({ where: {} });
-
-    const batchSize = 100;
-    for (let i = 0; i < chunks.length; i += batchSize) {
-      const batch = chunks.slice(i, i + batchSize);
-      await this.docsCollection.add({
-        ids: batch.map((c) => c.id),
-        documents: batch.map((c) => c.content),
-        metadatas: batch.map((c) => c.metadata),
-      });
-    }
-
-    return chunks.length;
+    return this.index.documents.docs.length;
   }
 
   /**
    * Index skill files
    */
   private async indexSkills(): Promise<number> {
-    if (!this.skillsCollection) return 0;
-
     const skillsPath = join(this.config.projectPath, ".claude", "skills");
 
     if (!existsSync(skillsPath)) return 0;
 
     const files = await glob("*.md", { cwd: skillsPath });
-    const chunks: DocumentChunk[] = [];
 
     for (const file of files) {
       const fullPath = join(skillsPath, file);
@@ -357,29 +375,14 @@ export class RAGEngine {
       // Parse frontmatter
       const { data: frontmatter, content: body } = matter(content);
 
-      chunks.push(
-        ...this.chunkMarkdown(body, file, "skill", {
-          skill_name: frontmatter.name || file.replace(".md", ""),
-          skill_description: frontmatter.description || "",
-        }),
-      );
-    }
-
-    if (chunks.length === 0) return 0;
-
-    await this.skillsCollection.delete({ where: {} });
-
-    const batchSize = 100;
-    for (let i = 0; i < chunks.length; i += batchSize) {
-      const batch = chunks.slice(i, i + batchSize);
-      await this.skillsCollection.add({
-        ids: batch.map((c) => c.id),
-        documents: batch.map((c) => c.content),
-        metadatas: batch.map((c) => c.metadata),
+      const chunks = this.chunkMarkdown(body, file, "skill", {
+        skill_name: frontmatter.name || file.replace(".md", ""),
+        skill_description: frontmatter.description || "",
       });
+      this.index.documents.skills.push(...chunks);
     }
 
-    return chunks.length;
+    return this.index.documents.skills.length;
   }
 
   /**
@@ -406,6 +409,7 @@ export class RAGEngine {
       chunks.push({
         id: `code_${filePath}_chunk_${chunkIndex}`,
         content: chunkContent,
+        tokens: this.tokenize(chunkContent),
         metadata: {
           source: "codebase",
           type: "code",
@@ -415,7 +419,7 @@ export class RAGEngine {
           end_line: Math.min(i + chunkSize, lines.length),
           chunk_index: chunkIndex,
           total_chunks: totalChunks,
-        } as Metadata,
+        },
       });
     }
 
@@ -444,9 +448,11 @@ export class RAGEngine {
       if (section.match(/^#{1,3}\s+/)) {
         // Save previous section
         if (currentContent.trim()) {
+          const fullContent = `${currentHeader}\n${currentContent}`.trim();
           chunks.push({
             id: `doc_${filePath}_chunk_${chunkIndex}`,
-            content: `${currentHeader}\n${currentContent}`.trim(),
+            content: fullContent,
+            tokens: this.tokenize(fullContent),
             metadata: {
               source: "documentation",
               type: docType,
@@ -455,7 +461,7 @@ export class RAGEngine {
               chunk_index: chunkIndex,
               total_chunks: 0, // Will be updated
               ...extraMetadata,
-            } as Metadata,
+            },
           });
           chunkIndex++;
         }
@@ -468,9 +474,11 @@ export class RAGEngine {
 
     // Don't forget the last section
     if (currentContent.trim()) {
+      const fullContent = `${currentHeader}\n${currentContent}`.trim();
       chunks.push({
         id: `doc_${filePath}_chunk_${chunkIndex}`,
-        content: `${currentHeader}\n${currentContent}`.trim(),
+        content: fullContent,
+        tokens: this.tokenize(fullContent),
         metadata: {
           source: "documentation",
           type: docType,
@@ -479,16 +487,14 @@ export class RAGEngine {
           chunk_index: chunkIndex,
           total_chunks: 0,
           ...extraMetadata,
-        } as Metadata,
+        },
       });
     }
 
     // Update total chunks
     const total = chunks.length;
     chunks.forEach((chunk) => {
-      (
-        chunk.metadata as Record<string, string | number | boolean>
-      ).total_chunks = total;
+      chunk.metadata.total_chunks = total;
     });
 
     return chunks;
@@ -503,34 +509,25 @@ export class RAGEngine {
     const collections: string[] = [];
     let totalDocuments = 0;
 
-    if (this.codeCollection) {
-      const count = await this.codeCollection.count();
-      if (count > 0) {
-        collections.push("code");
-        totalDocuments += count;
-      }
+    if (this.index.documents.code.length > 0) {
+      collections.push("code");
+      totalDocuments += this.index.documents.code.length;
     }
 
-    if (this.docsCollection) {
-      const count = await this.docsCollection.count();
-      if (count > 0) {
-        collections.push("docs");
-        totalDocuments += count;
-      }
+    if (this.index.documents.docs.length > 0) {
+      collections.push("docs");
+      totalDocuments += this.index.documents.docs.length;
     }
 
-    if (this.skillsCollection) {
-      const count = await this.skillsCollection.count();
-      if (count > 0) {
-        collections.push("skills");
-        totalDocuments += count;
-      }
+    if (this.index.documents.skills.length > 0) {
+      collections.push("skills");
+      totalDocuments += this.index.documents.skills.length;
     }
 
     return {
       totalDocuments,
       collections,
-      lastIndexed: null, // Would need to store this somewhere
+      lastIndexed: this.index.lastIndexed || null,
     };
   }
 }
