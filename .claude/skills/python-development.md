@@ -118,17 +118,111 @@ def test_uppercase(input_val: str, expected: str):
     assert input_val.upper() == expected
 ```
 
+## UV Package Management
+
+UV is the modern, fast Python package manager. Always prefer UV over pip.
+
+```bash
+# Install UV
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create virtual environment
+uv venv
+
+# Sync dependencies from pyproject.toml
+uv sync
+
+# Add packages (NEVER edit pyproject.toml directly)
+uv add requests
+uv add --dev pytest ruff mypy
+
+# Remove packages
+uv remove requests
+
+# Run commands in environment
+uv run python script.py
+uv run pytest
+uv run ruff check .
+```
+
+## Pydantic v2 Patterns
+
+### Models with Validation
+
+```python
+from pydantic import BaseModel, Field, field_validator, EmailStr
+from decimal import Decimal
+
+class ProductCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    price: Decimal = Field(..., gt=0, decimal_places=2)
+    category: str
+
+    @field_validator('price')
+    @classmethod
+    def validate_price(cls, v: Decimal) -> Decimal:
+        if v > Decimal('1000000'):
+            raise ValueError('Price cannot exceed 1,000,000')
+        return v
+
+    model_config = {"strict": True}
+```
+
+### Settings Management
+
+```python
+from pydantic_settings import BaseSettings
+from functools import lru_cache
+
+class Settings(BaseSettings):
+    app_name: str = "MyApp"
+    debug: bool = False
+    database_url: str
+    api_key: str
+
+    model_config = {"env_file": ".env", "case_sensitive": False}
+
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()
+```
+
+## Structured Logging
+
+```python
+import structlog
+
+logger = structlog.get_logger()
+
+# Log with context
+logger.info(
+    "payment_processed",
+    user_id=user.id,
+    amount=amount,
+    processing_time_ms=elapsed
+)
+```
+
 ## Tools Configuration
 
 ### pyproject.toml
 
 ```toml
+[project]
+name = "myproject"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "mypy", "pytest-cov"]
+
 [tool.ruff]
-line-length = 88
+line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP"]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM"]
 
 [tool.pyright]
 pythonVersion = "3.11"
@@ -136,5 +230,24 @@ typeCheckingMode = "strict"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --cov=src"
+```
+
+## Development Commands
+
+```bash
+# Run all tests
+uv run pytest
+
+# Run with coverage
+uv run pytest --cov=src --cov-report=html
+
+# Format code
+uv run ruff format .
+
+# Check and fix linting
+uv run ruff check --fix .
+
+# Type checking
+uv run mypy src/
 ```
