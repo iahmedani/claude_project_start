@@ -1,35 +1,40 @@
 #!/bin/bash
-# PreCompact hook: Save important context before compaction
-# Preserves key information when context is about to be compressed
+# PreCompact hook: Save context snapshot before compaction
 
-input=$(cat)
-timestamp=$(date '+%Y-%m-%d_%H-%M-%S')
+# Don't exit on errors
+set +e
 
-# Create context snapshots directory
-mkdir -p .claude/logs/context-snapshots
+# Read input (consume stdin)
+INPUT=$(cat 2>/dev/null || echo '{}')
 
-# Get current working state
-current_branch=$(git branch --show-current 2>/dev/null || echo "unknown")
-modified_files=$(git diff --name-only 2>/dev/null | head -20)
-staged_files=$(git diff --cached --name-only 2>/dev/null | head -20)
+# Create directory
+mkdir -p .claude/logs/context-snapshots 2>/dev/null
+
+TIMESTAMP=$(date '+%Y-%m-%d_%H-%M-%S')
+
+# Get git state if available
+BRANCH="unknown"
+MODIFIED=""
+STAGED=""
+
+if command -v git &>/dev/null && [ -d ".git" ]; then
+    BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+    MODIFIED=$(git diff --name-only 2>/dev/null | head -20)
+    STAGED=$(git diff --cached --name-only 2>/dev/null | head -20)
+fi
 
 # Save snapshot
-cat > ".claude/logs/context-snapshots/snapshot-$timestamp.md" << EOF
-# Context Snapshot - $timestamp
+cat > ".claude/logs/context-snapshots/snapshot-$TIMESTAMP.md" 2>/dev/null << EOF
+# Context Snapshot - $TIMESTAMP
 
 ## Git State
-- Branch: $current_branch
-- Modified files:
-$modified_files
-
-- Staged files:
-$staged_files
-
-## Recent Progress
-Check docs/progress/PROGRESS.md for current task status.
+- Branch: $BRANCH
+- Modified: $MODIFIED
+- Staged: $STAGED
 
 ## Notes
-Context was compacted at this point. Review this snapshot if you need to recover context.
+Context compacted at this point.
 EOF
 
-echo "{}"
+# Always return valid JSON
+echo '{}'

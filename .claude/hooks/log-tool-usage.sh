@@ -1,39 +1,23 @@
 #!/bin/bash
-# Hook: Log tool usage for debugging and audit trail
+# Hook: Log tool usage for debugging
 # Event: PostToolUse (all tools)
 
+# Don't exit on errors
 set +e
 
-LOG_DIR=".claude/logs"
-LOG_FILE="$LOG_DIR/tool-usage.log"
+# Read input
+INPUT=$(cat 2>/dev/null || echo '{}')
 
-# Ensure log directory exists
-mkdir -p "$LOG_DIR" 2>/dev/null
-
-# Check for jq (optional - will work without it)
-HAS_JQ=false
+# Log only if jq is available
 if command -v jq &> /dev/null; then
-    HAS_JQ=true
-fi
+    LOG_FILE=".claude/logs/tool-usage.log"
+    mkdir -p "$(dirname "$LOG_FILE")" 2>/dev/null
 
-# Read JSON input from stdin
-INPUT=$(cat)
-
-# Get timestamp
-TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
-
-if [ "$HAS_JQ" = true ]; then
-    # Extract tool info with jq
     TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // "unknown"' 2>/dev/null)
-    TOOL_RESULT=$(echo "$INPUT" | jq -r '.tool_output | type' 2>/dev/null)
-else
-    # Basic extraction without jq
-    TOOL_NAME="unknown"
-    TOOL_RESULT="unknown"
+    TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+
+    echo "[$TIMESTAMP] $TOOL_NAME" >> "$LOG_FILE" 2>/dev/null
 fi
 
-# Log the tool usage
-echo "[$TIMESTAMP] Tool: $TOOL_NAME | Result: $TOOL_RESULT" >> "$LOG_FILE" 2>/dev/null
-
-# Always return success (don't block)
+# Always return valid JSON
 echo '{}'
