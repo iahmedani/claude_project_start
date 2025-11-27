@@ -7,6 +7,7 @@ CLAUDE.local.md
 # MCP Server
 mcp-server/dist/
 mcp-server/node_modules/
+mcp-server/.claude/
 .mcp.json
 
 # OS files
