@@ -10,15 +10,46 @@
  * Usage:
  *   npx ts-node scripts/index-project.ts [project-path]
  *   npm run index -- [project-path]
+ *   PROJECT_PATH=/path/to/project npm run index
  */
 
 import { RAGEngine } from "../rag/engine.js";
 import { loadConfig } from "../utils/config.js";
 import { existsSync } from "fs";
-import { resolve } from "path";
+import { resolve, dirname, join } from "path";
+
+/**
+ * Find the project root by looking for markers
+ */
+function findProjectRoot(startPath: string): string {
+  let current = resolve(startPath);
+
+  // Walk up looking for project markers
+  for (let i = 0; i < 5; i++) {
+    // Check for project markers
+    if (
+      existsSync(join(current, "project-config.yaml")) ||
+      existsSync(join(current, "CLAUDE.md")) ||
+      (existsSync(join(current, ".claude")) && !current.endsWith("mcp-server"))
+    ) {
+      return current;
+    }
+
+    const parent = dirname(current);
+    if (parent === current) break; // Reached root
+    current = parent;
+  }
+
+  return startPath; // Fallback to original
+}
 
 async function main() {
-  const projectPath = process.argv[2] || process.cwd();
+  // Priority: 1. CLI arg, 2. PROJECT_PATH env, 3. Find from cwd
+  let projectPath =
+    process.argv[2] ||
+    process.env.PROJECT_PATH ||
+    findProjectRoot(process.cwd());
+
   const resolvedPath = resolve(projectPath);
 
   console.log(`\n🔍 Indexing project at: ${resolvedPath}\n`);
@@ -35,11 +66,15 @@ async function main() {
 
   console.log(`📦 Project: ${projectName}`);
 
+  // Determine chromaPath - use env var or default to project's .claude/rag-db
+  const chromaPath =
+    process.env.CHROMA_PATH || join(resolvedPath, ".claude", "rag-db");
+
   // Initialize RAG engine
   const ragEngine = new RAGEngine({
     projectPath: resolvedPath,
     collectionName: projectName,
-    chromaPath: process.env.CHROMA_PATH || `${resolvedPath}/.claude/rag-db`,
+    chromaPath: chromaPath,
   });
 
   try {
@@ -48,6 +83,7 @@ async function main() {
     console.log("✅ RAG engine initialized\n");
 
     console.log("📚 Starting indexing...\n");
+    console.log(`   Index location: ${chromaPath}\n`);
 
     const startTime = Date.now();
     const stats = await ragEngine.indexProject();
@@ -56,7 +92,7 @@ async function main() {
     console.log("\n✨ Indexing complete!\n");
     console.log("📊 Statistics:");
     console.log(`   - Total documents: ${stats.totalDocuments}`);
-    console.log(`   - Collections: ${stats.collections.join(", ")}`);
+    console.log(`   - Collections: ${stats.collections.join(", ") || "none"}`);
     console.log(`   - Duration: ${duration}s`);
     console.log(`   - Indexed at: ${stats.lastIndexed}`);
     console.log("");

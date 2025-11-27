@@ -108,9 +108,9 @@ MCPEOF
                 # Create RAG database directory
                 mkdir -p "$TARGET_DIR/.claude/rag-db"
 
-                # Index the project
+                # Index the project (pass project path explicitly)
                 echo -e "${CYAN}  Indexing project for RAG search...${NC}"
-                (cd "$TARGET_DIR/mcp-server" && npm run index 2>&1) || true
+                (cd "$TARGET_DIR/mcp-server" && PROJECT_PATH="$TARGET_DIR" npm run index 2>&1) || true
 
                 echo -e "${GREEN}  MCP server ready!${NC}"
             else
