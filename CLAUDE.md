@@ -236,6 +236,27 @@ your-project/
 
 The orchestrator includes an MCP server with RAG capabilities for intelligent context management.
 
+### IMPORTANT - Prefer MCP Tools
+
+**Always use MCP tools as the PRIMARY method for context retrieval and search.**
+
+Instead of using Grep/Glob/Read directly, prefer these MCP tools:
+
+| Task                  | Use MCP Tool                                     | NOT                     |
+| --------------------- | ------------------------------------------------ | ----------------------- |
+| Search code           | `mcp__claude-orchestrator__search_codebase`      | Grep, Glob              |
+| Find documentation    | `mcp__claude-orchestrator__search_documentation` | manual file reads       |
+| Get project context   | `mcp__claude-orchestrator__get_project_context`  | reading multiple files  |
+| Get skill guidance    | `mcp__claude-orchestrator__get_relevant_skill`   | reading skill files     |
+| Recall past decisions | `mcp__claude-orchestrator__recall_decision`      | searching ADRs manually |
+
+**Why MCP tools are better:**
+
+- **Faster** - Pre-indexed, no need to scan files
+- **Smarter** - Semantic search finds related code even without exact keywords
+- **Efficient** - Returns only relevant chunks, preserves context window
+- **Consistent** - Same results across sessions
+
 ### What is RAG?
 
 RAG (Retrieval-Augmented Generation) allows Claude to **semantically search** your codebase instead of re-reading entire files:
