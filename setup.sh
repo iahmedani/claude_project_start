@@ -135,19 +135,27 @@ mkdir -p "$TARGET_DIR/.claude/logs/context-snapshots"
 # Make hooks executable and verify
 echo -e "${GREEN}Setting up hooks...${NC}"
 if [ -d "$TARGET_DIR/.claude/hooks" ]; then
+    HOOK_COUNT=0
     for hook in "$TARGET_DIR/.claude/hooks/"*.sh; do
         if [ -f "$hook" ]; then
             chmod +x "$hook"
-            # Verify the hook is valid
-            if head -1 "$hook" | grep -q "^#!/bin/bash"; then
+            # Verify the hook is valid (accept both bash shebang variants)
+            if head -1 "$hook" | grep -qE "^#!/(bin/bash|usr/bin/env bash)"; then
                 echo -e "  ${GREEN}[OK]${NC} $(basename "$hook")"
+                HOOK_COUNT=$((HOOK_COUNT + 1))
             else
                 echo -e "  ${YELLOW}[!]${NC} $(basename "$hook") - missing shebang"
             fi
         fi
     done
+    echo -e "  ${CYAN}Total: $HOOK_COUNT hooks configured${NC}"
 else
-    echo -e "${YELLOW}  No hooks directory found${NC}"
+    echo -e "${YELLOW}  No hooks directory found - checking source...${NC}"
+    if [ -d "$SCRIPT_DIR/.claude/hooks" ]; then
+        echo -e "${CYAN}  Re-copying hooks from source...${NC}"
+        cp -r "$SCRIPT_DIR/.claude/hooks" "$TARGET_DIR/.claude/"
+        chmod +x "$TARGET_DIR/.claude/hooks/"*.sh 2>/dev/null || true
+    fi
 fi
 
 # Create initial progress tracking file

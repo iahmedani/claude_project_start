@@ -1,17 +1,15 @@
-# Workflow State
-
-> **This file tracks the current state of your project workflow.**
-> Updated automatically by commands and hooks. Do not edit manually unless you know what you're doing.
-
-## Current Phase
-
-```yaml
+---
 phase: not_initialized
 started: null
 last_updated: null
 active_task: null
 active_prp: null
-```
+---
+
+# Workflow State
+
+> **This file tracks the current state of your project workflow.**
+> Updated automatically by commands and hooks. Do not edit manually unless you know what you're doing.
 
 ## Flow Progress
 
