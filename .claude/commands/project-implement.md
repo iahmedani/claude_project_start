@@ -1,7 +1,7 @@
 ---
 name: project-implement
 description: "Implement a feature from an existing PRP. Follows test-driven approach with quality gates."
-tools: Read, Write, Edit, MultiEdit, Grep, Glob, Bash(git:*), Bash(pytest:*), Bash(python:*), Bash(ruff:*), Bash(pyright:*)
+tools: Read, Write, Edit, MultiEdit, Grep, Glob, Bash(git:*), Bash(pytest:*), Bash(python:*), Bash(ruff:*), Bash(pyright:*), Bash(npm:*), Bash(npx:*), Bash(node:*), Bash(vitest:*), Bash(playwright:*), Bash(tsc:*), Bash(eslint:*), Bash(prettier:*)
 ---
 
 # Execute Implementation from PRP
@@ -25,130 +25,203 @@ If no $ARGUMENTS provided, list available PRPs:
 ls -la docs/planning/PRP-*.md 2>/dev/null || echo "No PRPs found. Run /project-plan first."
 ```
 
+## CRITICAL: Read project-config.yaml First
+
+**Before implementing, determine the tech stack:**
+```yaml
+# Check these sections:
+stack.backend.language    # python, typescript, go, etc.
+stack.backend.framework   # fastapi, express, nestjs, etc.
+stack.frontend.framework  # react, vue, svelte, etc.
+stack.frontend.meta_framework  # nextjs, nuxt, etc.
+testing.backend.framework # pytest, vitest, jest
+testing.frontend.unit     # vitest, jest
+testing.frontend.e2e      # playwright, cypress
+```
+
 ## Implementation Workflow
 
 ### Phase 1: Load and Validate PRP
 
 1. Read the specified PRP file
-2. Display requirements summary
-3. Confirm implementation scope with user
+2. Read `project-config.yaml` to understand tech stack
+3. Display requirements summary
+4. Confirm implementation scope with user
 
-### Phase 2: Test-Driven Development (TDD)
+### Phase 2: Backend Implementation (if applicable)
 
-#### Step 2.1: Create Test Scaffolding
+**Skip if project has no backend (frontend-only)**
+
+#### Step 2.1: Create Backend Tests
 Use the **tester** subagent:
 ```
 Use the tester subagent to:
-1. Create test files based on acceptance criteria in [PRP]
-2. Write failing tests for each requirement
-3. Set up any required fixtures
+1. Create test files for backend based on PRP acceptance criteria
+2. Use the testing framework from project-config.yaml (pytest/vitest/jest)
+3. Write failing tests for each API endpoint/service
+4. Set up any required fixtures
 ```
 
-#### Step 2.2: Verify Tests Fail
+#### Step 2.2: Run Backend Tests - Verify Failure
 ```bash
-pytest tests/test_[feature].py -v --tb=short
+# For Python
+pytest tests/ -v --tb=short
+
+# For Node.js
+npm run test
 ```
-Expected: All tests should fail (no implementation yet)
 
-### Phase 3: Implementation
-
-#### Step 3.1: Implement Core Functionality
-Use the **developer** subagent for each component:
+#### Step 2.3: Implement Backend
+Use the **developer** subagent:
 ```
 Use the developer subagent to:
-1. Implement [Component] following pattern in [path/to/example.py]
-2. Add type hints for all functions
-3. Include docstrings
+1. Implement API routes/endpoints per PRP
+2. Implement services/business logic
+3. Implement data models and repositories
+4. Follow patterns from project-config.yaml
 ```
 
-#### Step 3.2: Run Tests After Each Component
+#### Step 2.4: Run Backend Tests - Verify Pass
 ```bash
-pytest tests/test_[feature].py -v
-```
-
-#### Step 3.3: Iterate Until Tests Pass
-Repeat implementation → test cycle until all tests pass.
-
-### Phase 4: Quality Verification
-
-#### Step 4.1: Lint Check
-```bash
-ruff check [files]
-ruff format [files]
-```
-
-#### Step 4.2: Type Check
-```bash
-pyright [files]
-```
-
-#### Step 4.3: Full Test Suite
-```bash
+# For Python
 pytest tests/ -v --cov
+
+# For Node.js
+npm run test -- --coverage
 ```
 
-### Phase 5: Code Review
+### Phase 3: Frontend Implementation (if applicable)
+
+**Skip if project has no frontend (API-only)**
+
+#### Step 3.1: Create Frontend Tests
+Use the **tester** subagent:
+```
+Use the tester subagent to:
+1. Create component tests using testing framework from project-config.yaml
+2. Write unit tests for hooks/stores
+3. Write component tests for UI components
+4. Set up test utilities and mocks
+```
+
+#### Step 3.2: Run Frontend Tests - Verify Failure
+```bash
+# Vitest
+npm run test
+
+# Or Jest
+npm run test
+```
+
+#### Step 3.3: Implement Frontend
+Use the **frontend-developer** subagent:
+```
+Use the frontend-developer subagent to:
+1. Create UI components per PRP specifications
+2. Implement state management (stores/hooks)
+3. Create pages/routes
+4. Implement API client/data fetching
+5. Apply styling per design requirements
+```
+
+#### Step 3.4: Run Frontend Tests - Verify Pass
+```bash
+npm run test
+```
+
+### Phase 4: Integration Testing
+
+#### Step 4.1: E2E Tests (if configured in project-config.yaml)
+```bash
+# Playwright
+npx playwright test
+
+# Or Cypress
+npx cypress run
+```
+
+### Phase 5: Quality Verification
+
+#### Backend Quality (Python)
+```bash
+ruff check .
+ruff format --check .
+pyright
+pytest --cov --cov-fail-under=80
+```
+
+#### Backend Quality (Node.js)
+```bash
+npm run lint
+npm run type-check
+npm run test -- --coverage
+```
+
+#### Frontend Quality
+```bash
+npm run lint
+npm run type-check  # tsc --noEmit
+npm run test
+npm run build
+```
+
+### Phase 6: Code Review
 
 Use the **reviewer** subagent:
 ```
 Use the reviewer subagent to review:
-1. Code quality and patterns
-2. Test coverage completeness
-3. Documentation quality
+1. Backend code quality and patterns
+2. Frontend code quality and patterns
+3. Test coverage completeness
+4. API contract correctness
+5. Documentation quality
 ```
 
-Address any critical issues found.
-
-### Phase 6: Validation Gates
+### Phase 7: Validation Gates
 
 Use the **validation-gates** subagent:
 ```
-Use the validation-gates subagent to verify all quality gates pass.
+Use the validation-gates subagent to verify all quality gates pass
+for BOTH backend and frontend as specified in project-config.yaml.
 ```
 
 All gates must be ✅:
-- [ ] All tests passing
-- [ ] Linting clean
-- [ ] Type checking clean
+
+**Backend:**
+- [ ] All backend tests passing
+- [ ] Linting clean (ruff/eslint)
+- [ ] Type checking clean (pyright/tsc)
 - [ ] Coverage threshold met
-- [ ] No security issues
 
-### Phase 7: Documentation
+**Frontend:**
+- [ ] All frontend tests passing
+- [ ] Linting clean (eslint)
+- [ ] Type checking clean (tsc)
+- [ ] Build succeeds
+- [ ] E2E tests passing (if configured)
 
-Use the **documenter** subagent:
-```
-Use the documenter subagent to:
-1. Update README if needed
-2. Add/update module docstrings
-3. Update CHANGELOG
-```
+### Phase 8: Documentation & Commit
 
-### Phase 8: Commit and Update
+1. **Update Documentation**
+   - README if needed
+   - API documentation
+   - CHANGELOG
 
-1. **Stage Changes**
+2. **Stage and Commit**
 ```bash
-git add [files]
-```
+git add .
+git commit -m "feat: [Feature Name]
 
-2. **Create Commit**
-```bash
-git commit -m "feat: [description based on PRP]
-
-- Implements [Feature Name]
-- Closes #[issue if linked]
+Implements [description from PRP]
+- Backend: [summary]
+- Frontend: [summary]
 
 See: docs/planning/PRP-[slug].md"
 ```
 
-3. **Update PRP Status**
-Change PRP status to ✅ Completed
-
-4. **Update Workflow State**
-Mark implementation steps as complete in STATE.md
+3. **Update PRP Status** to ✅ Completed
 
 ## Output Format
-
-After completion:
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
@@ -157,41 +230,16 @@ After completion:
 ║  Feature: [Feature Name]                                      ║
 ║  PRP: docs/planning/PRP-[slug].md                            ║
 ╠══════════════════════════════════════════════════════════════╣
-║  SUMMARY                                                      ║
+║  BACKEND                                                      ║
 ║  ├── Files Created:  [count]                                  ║
-║  ├── Files Modified: [count]                                  ║
 ║  ├── Tests:          [count] passing                          ║
 ║  └── Coverage:       [percent]%                               ║
 ╠══════════════════════════════════════════════════════════════╣
-║  COMMIT: [hash] - feat: [description]                        ║
+║  FRONTEND                                                     ║
+║  ├── Components:     [count]                                  ║
+║  ├── Tests:          [count] passing                          ║
+║  └── Build:          ✅ Success                                ║
 ╠══════════════════════════════════════════════════════════════╣
-║  STEP COMPLETED: Implementation                               ║
-║  ───────────────────────────────────────────────────────────  ║
-║  ➡️  NEXT STEP: Run /project-review for final review          ║
-║                                                               ║
-║  Alternatives:                                                ║
-║  • /project-validate - Run all validation gates              ║
-║  • /project-deploy - Prepare for deployment                  ║
-╚══════════════════════════════════════════════════════════════╝
-```
-
-## Error Handling
-
-If implementation fails at any step:
-1. Report which step failed
-2. Show error details
-3. Suggest remediation
-4. Offer to retry or rollback
-
-```
-╔══════════════════════════════════════════════════════════════╗
-║  ⚠️  IMPLEMENTATION BLOCKED                                   ║
-╠══════════════════════════════════════════════════════════════╣
-║  Failed at: [step name]                                       ║
-║  Error: [error message]                                       ║
-╠══════════════════════════════════════════════════════════════╣
-║  SUGGESTED ACTIONS:                                           ║
-║  1. [Fix suggestion]                                          ║
-║  2. [Alternative approach]                                    ║
+║  ➡️  NEXT: /project-validate or /project-review               ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
