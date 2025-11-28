@@ -40,7 +40,7 @@ active_prp: null
 
 - [ ] Requirements gathered
 - [ ] PRP created (`/project-plan`)
-- [ ] Architecture reviewed (`architect` agent)
+- [ ] Architecture reviewed
 
 ### Phase 4: Design
 
@@ -60,23 +60,17 @@ active_prp: null
 - [ ] Integration tests complete
 - [ ] Coverage threshold met
 
-### Phase 7: Review
-
-- [ ] Code reviewed (`/project-review`)
-- [ ] Security audit passed
-- [ ] Documentation updated
-
-### Phase 8: Validation
+### Phase 7: Review & Validation
 
 - [ ] All quality gates pass (`/project-validate`)
 - [ ] No linting errors
 - [ ] Type checking passes
 
-### Phase 9: Deployment
+### Phase 8: Completion
 
-- [ ] Release notes prepared
-- [ ] Deployment checklist complete
-- [ ] Deployed (`/project-deploy`)
+- [ ] Code committed
+- [ ] PR created (if applicable)
+- [ ] Ready for deployment
 
 ## Active Work
 

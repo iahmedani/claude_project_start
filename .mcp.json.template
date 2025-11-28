@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "claude-orchestrator": {
-      "comment": "Project orchestration with RAG-powered search and workflow management",
+      "comment": "Project orchestration and workflow management",
       "command": "node",
       "args": ["./mcp-server/dist/index.js"],
       "env": {

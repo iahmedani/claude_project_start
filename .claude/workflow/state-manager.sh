@@ -214,20 +214,16 @@ get_next_action() {
             fi
             ;;
         "testing")
-            next="/project-review - Get code reviewed"
+            next="/project-validate - Run validation gates"
             ;;
         "review")
-            if ! is_complete "Code reviewed" > /dev/null 2>&1; then
-                next="/project-review - Complete code review"
-            else
-                next="/project-validate - Run validation gates"
-            fi
+            next="/project-validate - Run validation gates"
             ;;
         "validation")
-            next="/project-deploy - Prepare deployment"
+            next="Commit and push - Code is ready"
             ;;
         "deployment")
-            next="Complete deployment checklist and release"
+            next="Complete deployment"
             ;;
         "complete")
             next="/project-plan [next-feature] - Plan next feature"
