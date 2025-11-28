@@ -43,14 +43,12 @@ Ask the user 2-3 focused questions:
 - Are there any specific constraints or requirements?
 - Should this integrate with existing features?
 
-### Step 3: Use Architect Subagent
-Delegate to the **architect** subagent:
-```
-Use the architect subagent to:
-1. Design the high-level approach for $ARGUMENTS
-2. Identify existing patterns to follow
-3. Note any architectural considerations or ADRs needed
-```
+### Step 3: Design Architecture
+Analyze the codebase to design the approach:
+1. Identify existing patterns to follow
+2. Design the high-level approach for $ARGUMENTS
+3. Note any architectural considerations
+4. Document decisions in the PRP
 
 ### Step 4: Create PRP Document
 

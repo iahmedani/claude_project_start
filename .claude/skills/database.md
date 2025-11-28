@@ -1,6 +1,6 @@
 # Database & Data Layer Skill
 
-> **Related**: `api-design` (REST endpoints), `graphql-api` (GraphQL resolvers), `python-development` (SQLAlchemy)
+> **Related**: `api-design` (REST endpoints), `testing-tdd` (database testing)
 
 ## Naming Conventions
 

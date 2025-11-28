@@ -1,6 +1,6 @@
 # API Design Skill
 
-> **Related**: `database` (data layer), `graphql-api` (GraphQL alternative), `python-development` (FastAPI)
+> **Related**: `database` (data layer), `testing-tdd` (API testing)
 
 Best practices for designing and implementing RESTful APIs.
 

@@ -1,6 +1,6 @@
 # React & Next.js Development Skill
 
-> **Related**: `state-management` (Zustand, React Query), `css-styling` (Tailwind), `testing-tdd` (React Testing Library)
+> **Related**: `testing-tdd` (React Testing Library). Additional styling/state examples in `.claude/skills/archive/`.
 
 Best practices for building modern React applications with Next.js.
 

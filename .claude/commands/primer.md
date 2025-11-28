@@ -217,7 +217,7 @@ After analysis:
 ║  ➡️  NEXT STEP: Run /project-plan to plan your feature         ║
 ║                                                               ║
 ║  Alternatives:                                                ║
-║  • /project-explore [area] - Deep dive into specific area    ║
-║  • /project-fix-issue [#] - Fix a GitHub issue               ║
+║  • /project-status - View project dashboard                  ║
+║  • /project-implement [PRP] - Start implementing a PRP       ║
 ╚══════════════════════════════════════════════════════════════╝
 ```

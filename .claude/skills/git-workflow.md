@@ -1,6 +1,6 @@
 # Git Workflow Skill
 
-> **Related**: `ci-cd` (Git in pipelines), `docker-kubernetes` (GitOps)
+> **Note**: Additional CI/CD and GitOps examples available in `.claude/skills/archive/` if needed.
 
 ## Commit Message Convention
 

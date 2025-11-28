@@ -1,130 +1,129 @@
 ---
 name: project-validate
 description: "Run all quality gates to validate code is ready for merge/deployment. Final checkpoint before release."
-tools: Read, Bash(pytest:*), Bash(ruff:*), Bash(pyright:*), Bash(git:*)
+tools: Read, Bash(pytest:*), Bash(ruff:*), Bash(pyright:*), Bash(npm:*), Bash(npx:*), Bash(tsc:*), Bash(eslint:*), Bash(vitest:*), Bash(git:*)
 ---
 
 # Validate Quality Gates
 
 Run all quality gates to ensure code is ready for merge/deployment.
 
+## CRITICAL: Read project-config.yaml First
+
+Determine the tech stack to know which gates to run:
+```yaml
+stack.type           # fullstack, backend, frontend
+stack.backend.*      # language (python/typescript)
+stack.frontend.*     # framework
+```
+
 ## Prerequisites
 
 This is typically run after:
 1. Implementation complete (`/project-implement`)
-2. Code review passed (`/project-review`)
+2. Tests passing (`/project-test`)
 
-## Validation Gates
+---
 
-### Gate 1: Linting ✅
+## Backend Validation Gates (Python)
+
+### Gate 1: Linting
 
 ```bash
-echo "🔍 Running linter..."
+echo "🔍 Running Python linter..."
 ruff check . --fix
 ruff format .
 ```
 
-Expected: No errors
-```
-╔═══════════════════════════════════════╗
-║  Gate 1: Linting       [✅ PASSED]    ║
-║  Errors: 0                            ║
-╚═══════════════════════════════════════╝
-```
-
-### Gate 2: Type Checking ✅
+### Gate 2: Type Checking
 
 ```bash
-echo "🔍 Running type checker..."
+echo "🔍 Running Python type checker..."
 pyright .
 ```
 
-Expected: No type errors
-```
-╔═══════════════════════════════════════╗
-║  Gate 2: Type Check    [✅ PASSED]    ║
-║  Errors: 0                            ║
-╚═══════════════════════════════════════╝
-```
-
-### Gate 3: Unit Tests ✅
+### Gate 3: Unit Tests
 
 ```bash
-echo "🔍 Running unit tests..."
+echo "🔍 Running Python unit tests..."
 pytest tests/unit/ -v --tb=short
 ```
 
-Expected: All tests pass
-```
-╔═══════════════════════════════════════╗
-║  Gate 3: Unit Tests    [✅ PASSED]    ║
-║  Tests: XX passed, 0 failed           ║
-╚═══════════════════════════════════════╝
-```
-
-### Gate 4: Integration Tests ✅
+### Gate 4: Integration Tests
 
 ```bash
-echo "🔍 Running integration tests..."
+echo "🔍 Running Python integration tests..."
 pytest tests/integration/ -v --tb=short
 ```
 
-Expected: All tests pass
-```
-╔═══════════════════════════════════════╗
-║  Gate 4: Integration   [✅ PASSED]    ║
-║  Tests: XX passed, 0 failed           ║
-╚═══════════════════════════════════════╝
-```
-
-### Gate 5: Test Coverage ✅
+### Gate 5: Test Coverage
 
 ```bash
-echo "🔍 Checking coverage..."
+echo "🔍 Checking Python coverage..."
 pytest --cov --cov-report=term-missing --cov-fail-under=80
 ```
 
-Expected: Coverage >= threshold (default 80%)
-```
-╔═══════════════════════════════════════╗
-║  Gate 5: Coverage      [✅ PASSED]    ║
-║  Coverage: XX%  (threshold: 80%)      ║
-╚═══════════════════════════════════════╝
+---
+
+## Frontend Validation Gates (Node.js)
+
+### Gate 1: Linting
+
+```bash
+echo "🔍 Running ESLint..."
+npm run lint
 ```
 
-### Gate 6: Security Check ✅
+### Gate 2: Type Checking
 
-Use the **security-auditor** subagent:
-```
-Use the security-auditor subagent to perform a final security check.
-Focus on:
-1. No secrets in code
-2. No vulnerable dependencies
-3. Safe patterns used
+```bash
+echo "🔍 Running TypeScript type check..."
+npx tsc --noEmit
 ```
 
-```
-╔═══════════════════════════════════════╗
-║  Gate 6: Security      [✅ PASSED]    ║
-║  Vulnerabilities: 0                   ║
-╚═══════════════════════════════════════╝
+### Gate 3: Unit/Component Tests
+
+```bash
+echo "🔍 Running frontend tests..."
+npm run test
 ```
 
-### Gate 7: Documentation ✅
+### Gate 4: Build
+
+```bash
+echo "🔍 Building frontend..."
+npm run build
+```
+
+### Gate 5: E2E Tests (if configured)
+
+```bash
+echo "🔍 Running E2E tests..."
+npx playwright test
+```
+
+---
+
+## Common Gates (All Projects)
+
+### Gate: Security Check
+
+Use the **reviewer** subagent to check for security issues:
+```
+Use the reviewer subagent to perform a security check:
+1. No secrets/credentials in code
+2. No vulnerable patterns (SQL injection, XSS)
+3. Dependencies are secure
+```
+
+### Gate: Documentation
 
 Check documentation is current:
 - [ ] README up to date
-- [ ] Docstrings present
+- [ ] Docstrings/JSDoc present
 - [ ] CHANGELOG updated
 
-```
-╔═══════════════════════════════════════╗
-║  Gate 7: Documentation [✅ PASSED]    ║
-║  All docs current                     ║
-╚═══════════════════════════════════════╝
-```
-
-### Gate 8: Git Status ✅
+### Gate: Git Status
 
 ```bash
 echo "🔍 Checking git status..."
@@ -132,12 +131,8 @@ git status --porcelain
 ```
 
 Expected: All changes committed
-```
-╔═══════════════════════════════════════╗
-║  Gate 8: Git Status    [✅ PASSED]    ║
-║  All changes committed                ║
-╚═══════════════════════════════════════╝
-```
+
+---
 
 ## Output Format
 
@@ -147,23 +142,30 @@ After validation:
 ╔══════════════════════════════════════════════════════════════╗
 ║  🎯 VALIDATION COMPLETE                                       ║
 ╠══════════════════════════════════════════════════════════════╣
-║  QUALITY GATES                                                ║
-║  ├── Gate 1: Linting         [✅]                             ║
-║  ├── Gate 2: Type Check      [✅]                             ║
-║  ├── Gate 3: Unit Tests      [✅]                             ║
-║  ├── Gate 4: Integration     [✅]                             ║
-║  ├── Gate 5: Coverage        [✅] 85%                         ║
-║  ├── Gate 6: Security        [✅]                             ║
-║  ├── Gate 7: Documentation   [✅]                             ║
-║  └── Gate 8: Git Status      [✅]                             ║
+║  BACKEND QUALITY GATES                                        ║
+║  ├── Linting (ruff):      [✅]                                ║
+║  ├── Type Check (pyright):[✅]                                ║
+║  ├── Unit Tests:          [✅]                                ║
+║  ├── Integration Tests:   [✅]                                ║
+║  └── Coverage:            [✅] 85%                            ║
+╠══════════════════════════════════════════════════════════════╣
+║  FRONTEND QUALITY GATES                                       ║
+║  ├── Linting (eslint):    [✅]                                ║
+║  ├── Type Check (tsc):    [✅]                                ║
+║  ├── Tests:               [✅]                                ║
+║  ├── Build:               [✅]                                ║
+║  └── E2E Tests:           [✅]                                ║
+╠══════════════════════════════════════════════════════════════╣
+║  COMMON GATES                                                 ║
+║  ├── Security:            [✅]                                ║
+║  ├── Documentation:       [✅]                                ║
+║  └── Git Status:          [✅] Clean                          ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  RESULT: ✅ ALL GATES PASSED                                  ║
 ╠══════════════════════════════════════════════════════════════╣
-║  STEP COMPLETED: Validation                                   ║
-║  ───────────────────────────────────────────────────────────  ║
-║  ➡️  NEXT STEP: Run /project-deploy for deployment prep       ║
+║  ➡️  READY FOR: PR creation or deployment                     ║
 ║                                                               ║
-║  Alternatives:                                                ║
+║  Options:                                                     ║
 ║  • Create PR: gh pr create                                   ║
 ║  • Tag release: git tag v[version]                           ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -178,9 +180,9 @@ If any gate fails:
 ║  ❌ VALIDATION FAILED                                         ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  QUALITY GATES                                                ║
-║  ├── Gate 1: Linting         [✅]                             ║
-║  ├── Gate 2: Type Check      [✅]                             ║
-║  ├── Gate 3: Unit Tests      [❌] 2 failed                    ║
+║  ├── Linting:             [✅]                                ║
+║  ├── Type Check:          [✅]                                ║
+║  ├── Unit Tests:          [❌] 2 failed                       ║
 ║  └── (remaining gates skipped)                                ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  FAILED GATE: Unit Tests                                      ║

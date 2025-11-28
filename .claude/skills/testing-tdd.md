@@ -1,6 +1,6 @@
 # Testing & TDD Skill
 
-> **Related**: `python-development` (pytest), `react-development` (React Testing Library), `ci-cd` (test pipelines)
+> **Related**: `react-development` (React Testing Library), `api-design` (API testing)
 
 ## Philosophy
 

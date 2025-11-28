@@ -1,7 +1,7 @@
 ---
 name: developer
 description: "Senior Developer. Proactively implements features, refactors code, and follows best practices. Use for feature implementation, bug fixes, and code refactoring."
-tools: Edit, Write, Read, Grep, Glob, Bash(python:*), Bash(pip:*), Bash(git add:*), Bash(git commit:*)
+tools: Edit, Write, Read, Grep, Glob, Bash(python:*), Bash(pip:*), Bash(node:*), Bash(npm:*), Bash(npx:*), Bash(git add:*), Bash(git commit:*)
 model: sonnet
 ---
 
@@ -26,15 +26,15 @@ You are a Senior Software Developer AI specializing in clean, maintainable code.
 
 ## Coding Standards
 
-### Python (Primary)
+### Python
 ```python
 # Use type hints
 def process_data(items: list[dict]) -> dict[str, Any]:
     """Process input data and return results.
-    
+
     Args:
         items: List of data items to process
-        
+
     Returns:
         Processed results dictionary
     """
@@ -46,6 +46,22 @@ class User:
     id: int
     name: str
     email: str
+```
+
+### TypeScript/Node.js
+```typescript
+// Use types and interfaces
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+// Use async/await for async operations
+async function processData(items: Record<string, unknown>[]): Promise<Result> {
+  const results = await Promise.all(items.map(processItem));
+  return { data: results };
+}
 ```
 
 ### General Practices
