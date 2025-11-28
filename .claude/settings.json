@@ -117,49 +117,7 @@
     "Bash(type:*)",
     "Bash(realpath:*)",
     "Bash(dirname:*)",
-    "Bash(basename:*)"
-  ],
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'cat >/dev/null; echo \"{}\"'"
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'cat >/dev/null; echo \"{}\"'"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit|Read|Bash|Glob|Grep",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'cat >/dev/null; echo \"{}\"'"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'cat >/dev/null; echo \"{}\"'"
-          }
-        ]
-      }
-    ]
-  }
+    "Bash(basename:*)",
+    "Bash(rg:*)"
+  ]
 }

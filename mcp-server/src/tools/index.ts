@@ -1,11 +1,13 @@
 /**
- * MCP Tools for Project Orchestration
+ * MCP Tools for Project Orchestration (Simplified)
  *
- * Provides tools that Claude can call for:
- * - Project context retrieval
- * - RAG-powered search
- * - Workflow state management
- * - Pattern and decision recall
+ * Provides 3 essential tools:
+ * - get_project_context: Composite view of project state
+ * - update_workflow_state: Track workflow progress
+ * - index_project: Re-index for search
+ *
+ * Note: RAG search tools removed - use Claude's built-in Grep/Glob
+ * which are more reliable for keyword searches.
  */
 
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
@@ -22,14 +24,14 @@ import { join } from "path";
 import yaml from "js-yaml";
 
 /**
- * Register all available tools
+ * Register all available tools (simplified to 3 essential)
  */
 export function registerTools(): Tool[] {
   return [
     {
       name: "get_project_context",
       description:
-        "Get comprehensive project context including configuration, current workflow state, and recent activity. Use this to understand the project before making changes.",
+        "Get comprehensive project context including configuration, current workflow state, PRPs, and ADRs. Use this to understand the project before making changes.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -55,100 +57,6 @@ export function registerTools(): Tool[] {
           },
         },
         required: [],
-      },
-    },
-    {
-      name: "search_codebase",
-      description:
-        "Semantic search across the project codebase. Returns relevant code snippets based on natural language queries. Much more efficient than grep for understanding code.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          query: {
-            type: "string",
-            description:
-              "Natural language search query (e.g., 'authentication logic', 'database connection handling')",
-          },
-          limit: {
-            type: "number",
-            description: "Maximum number of results",
-            default: 10,
-          },
-        },
-        required: ["query"],
-      },
-    },
-    {
-      name: "search_documentation",
-      description:
-        "Search project documentation including PRPs, ADRs, and guides. Use this to find past decisions, requirements, and design rationale.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          query: {
-            type: "string",
-            description: "What you're looking for in the documentation",
-          },
-          doc_type: {
-            type: "string",
-            enum: ["all", "prp", "adr", "guide"],
-            description: "Type of documentation to search",
-            default: "all",
-          },
-          limit: {
-            type: "number",
-            description: "Maximum number of results",
-            default: 5,
-          },
-        },
-        required: ["query"],
-      },
-    },
-    {
-      name: "get_relevant_skill",
-      description:
-        "Retrieve relevant sections from skill files based on the task at hand. Returns only the most relevant parts to minimize context usage.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          query: {
-            type: "string",
-            description:
-              "What you need guidance on (e.g., 'React hooks best practices', 'testing async functions')",
-          },
-          skill_name: {
-            type: "string",
-            description:
-              "Optional specific skill to search (e.g., 'react-development', 'testing-tdd')",
-          },
-          limit: {
-            type: "number",
-            description: "Maximum number of sections to return",
-            default: 3,
-          },
-        },
-        required: ["query"],
-      },
-    },
-    {
-      name: "recall_decision",
-      description:
-        "Recall past architectural decisions or implementation patterns from ADRs and PRPs. Use when you need to understand why something was done a certain way.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          topic: {
-            type: "string",
-            description:
-              "The topic or decision you want to recall (e.g., 'authentication method', 'database choice')",
-          },
-          limit: {
-            type: "number",
-            description: "Maximum number of decisions to return",
-            default: 3,
-          },
-        },
-        required: ["topic"],
       },
     },
     {
@@ -194,7 +102,7 @@ export function registerTools(): Tool[] {
     {
       name: "index_project",
       description:
-        "Re-index the project for RAG search. Run this after significant changes to the codebase or documentation.",
+        "Re-index the project for search. Run this after significant changes to the codebase or documentation.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -205,16 +113,6 @@ export function registerTools(): Tool[] {
             default: ["code", "docs", "skills"],
           },
         },
-        required: [],
-      },
-    },
-    {
-      name: "get_rag_stats",
-      description:
-        "Get statistics about the RAG index including document counts and collections.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {},
         required: [],
       },
     },
@@ -237,26 +135,11 @@ export async function handleToolCall(
       case "get_project_context":
         return await handleGetProjectContext(args, projectConfig, projectPath);
 
-      case "search_codebase":
-        return await handleSearchCodebase(args, ragEngine);
-
-      case "search_documentation":
-        return await handleSearchDocumentation(args, ragEngine);
-
-      case "get_relevant_skill":
-        return await handleGetRelevantSkill(args, ragEngine);
-
-      case "recall_decision":
-        return await handleRecallDecision(args, ragEngine);
-
       case "update_workflow_state":
         return await handleUpdateWorkflowState(args, projectPath);
 
       case "index_project":
         return await handleIndexProject(args, ragEngine);
-
-      case "get_rag_stats":
-        return await handleGetRagStats(ragEngine);
 
       default:
         return {
@@ -313,201 +196,6 @@ async function handleGetProjectContext(
         text: JSON.stringify(context, null, 2),
       },
     ],
-  };
-}
-
-async function handleSearchCodebase(
-  args: Record<string, unknown>,
-  ragEngine: RAGEngine | null,
-): Promise<{ content: Array<{ type: "text"; text: string }> }> {
-  if (!ragEngine) {
-    return {
-      content: [
-        {
-          type: "text",
-          text: "RAG engine not available. Run 'index_project' first or check ChromaDB connection.",
-        },
-      ],
-    };
-  }
-
-  const query = args.query as string;
-  const limit = (args.limit as number) || 10;
-
-  const results = await ragEngine.searchCode(query, limit);
-
-  if (results.length === 0) {
-    return {
-      content: [
-        {
-          type: "text",
-          text: `No code results found for: "${query}". Try a different query or run 'index_project' to refresh the index.`,
-        },
-      ],
-    };
-  }
-
-  const formatted = results.map((r, i) => {
-    const meta = r.metadata as {
-      path?: string;
-      start_line?: number;
-      end_line?: number;
-    };
-    return `## Result ${i + 1}: ${meta.path || "unknown"} (lines ${meta.start_line}-${meta.end_line})
-\`\`\`
-${r.content}
-\`\`\`
-`;
-  });
-
-  return {
-    content: [{ type: "text", text: formatted.join("\n---\n") }],
-  };
-}
-
-async function handleSearchDocumentation(
-  args: Record<string, unknown>,
-  ragEngine: RAGEngine | null,
-): Promise<{ content: Array<{ type: "text"; text: string }> }> {
-  if (!ragEngine) {
-    return {
-      content: [{ type: "text", text: "RAG engine not available." }],
-    };
-  }
-
-  const query = args.query as string;
-  const limit = (args.limit as number) || 5;
-  const docType = (args.doc_type as string) || "all";
-
-  let results = await ragEngine.searchDocs(query, limit);
-
-  // Filter by doc type if specified
-  if (docType !== "all") {
-    results = results.filter((r) => r.metadata.type === docType);
-  }
-
-  if (results.length === 0) {
-    return {
-      content: [
-        { type: "text", text: `No documentation found for: "${query}"` },
-      ],
-    };
-  }
-
-  const formatted = results.map((r, i) => {
-    const meta = r.metadata as {
-      path?: string;
-      section?: string;
-      type?: string;
-    };
-    return `## Result ${i + 1}: ${meta.path} - ${meta.section || ""}
-Type: ${meta.type}
-
-${r.content}
-`;
-  });
-
-  return {
-    content: [{ type: "text", text: formatted.join("\n---\n") }],
-  };
-}
-
-async function handleGetRelevantSkill(
-  args: Record<string, unknown>,
-  ragEngine: RAGEngine | null,
-): Promise<{ content: Array<{ type: "text"; text: string }> }> {
-  if (!ragEngine) {
-    return {
-      content: [{ type: "text", text: "RAG engine not available." }],
-    };
-  }
-
-  const query = args.query as string;
-  const skillName = args.skill_name as string | undefined;
-  const limit = (args.limit as number) || 3;
-
-  let results = await ragEngine.searchSkills(query, limit);
-
-  // Filter by skill name if specified
-  if (skillName) {
-    results = results.filter((r) => {
-      const name = r.metadata.skill_name as string;
-      return name && name.includes(skillName);
-    });
-  }
-
-  if (results.length === 0) {
-    return {
-      content: [
-        {
-          type: "text",
-          text: `No relevant skill sections found for: "${query}"`,
-        },
-      ],
-    };
-  }
-
-  const formatted = results.map((r, i) => {
-    const meta = r.metadata as { skill_name?: string; section?: string };
-    return `## ${meta.skill_name || "Skill"} - ${meta.section || "Section"}
-
-${r.content}
-`;
-  });
-
-  return {
-    content: [{ type: "text", text: formatted.join("\n---\n") }],
-  };
-}
-
-async function handleRecallDecision(
-  args: Record<string, unknown>,
-  ragEngine: RAGEngine | null,
-): Promise<{ content: Array<{ type: "text"; text: string }> }> {
-  if (!ragEngine) {
-    return {
-      content: [{ type: "text", text: "RAG engine not available." }],
-    };
-  }
-
-  const topic = args.topic as string;
-  const limit = (args.limit as number) || 3;
-
-  // Search specifically for ADRs and PRPs
-  const results = await ragEngine.searchDocs(topic, limit * 2);
-  const filtered = results
-    .filter((r) => {
-      const type = r.metadata.type as string;
-      return type === "adr" || type === "prp";
-    })
-    .slice(0, limit);
-
-  if (filtered.length === 0) {
-    return {
-      content: [
-        {
-          type: "text",
-          text: `No past decisions found for: "${topic}". Check if ADRs/PRPs exist.`,
-        },
-      ],
-    };
-  }
-
-  const formatted = filtered.map((r, i) => {
-    const meta = r.metadata as {
-      path?: string;
-      type?: string;
-      section?: string;
-    };
-    return `## Decision ${i + 1}: ${meta.path} (${meta.type?.toUpperCase()})
-Section: ${meta.section || "N/A"}
-
-${r.content}
-`;
-  });
-
-  return {
-    content: [{ type: "text", text: formatted.join("\n---\n") }],
   };
 }
 
@@ -575,7 +263,7 @@ async function handleIndexProject(
       content: [
         {
           type: "text",
-          text: "RAG engine not available. Check ChromaDB connection.",
+          text: "RAG engine not available. Index functionality requires RAG initialization.",
         },
       ],
     };
@@ -591,35 +279,6 @@ async function handleIndexProject(
 - Total documents: ${stats.totalDocuments}
 - Collections: ${stats.collections.join(", ")}
 - Indexed at: ${stats.lastIndexed}`,
-      },
-    ],
-  };
-}
-
-async function handleGetRagStats(
-  ragEngine: RAGEngine | null,
-): Promise<{ content: Array<{ type: "text"; text: string }> }> {
-  if (!ragEngine) {
-    return {
-      content: [
-        {
-          type: "text",
-          text: "RAG engine not available. Check ChromaDB connection.",
-        },
-      ],
-    };
-  }
-
-  const stats = await ragEngine.getStats();
-
-  return {
-    content: [
-      {
-        type: "text",
-        text: `RAG Index Statistics:
-- Total documents: ${stats.totalDocuments}
-- Collections: ${stats.collections.join(", ") || "none"}
-- Last indexed: ${stats.lastIndexed || "unknown"}`,
       },
     ],
   };
